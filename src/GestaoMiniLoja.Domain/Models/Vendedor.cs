@@ -1,6 +1,8 @@
 ﻿namespace GestaoMiniLoja.Domain.Models
 {
-    internal class Vendedor
+    public class Vendedor
     {
+        public required int Id { get; set; }
+
     }
 }
