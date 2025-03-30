@@ -5,7 +5,7 @@ VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestaoMiniLoja.Web", "src\GestaoMiniLoja.Web\GestaoMiniLoja.Web.csproj", "{58925284-90C9-4BF3-962D-073CA1CAC438}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestaoMiniLoja.Data", "src\GestaoMiniLoja.Domain\GestaoMiniLoja.Data.csproj", "{7854F86E-8915-447C-B9BC-FBABEADA8755}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestaoMiniLoja.Data", "src\GestaoMiniLoja.Data\GestaoMiniLoja.Data.csproj", "{7854F86E-8915-447C-B9BC-FBABEADA8755}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

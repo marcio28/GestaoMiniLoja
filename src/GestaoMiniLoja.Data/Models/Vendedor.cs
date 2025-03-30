@@ -1,4 +1,4 @@
-﻿namespace GestaoMiniLoja.Domain.Models
+﻿namespace GestaoMiniLoja.Data.Models
 {
     public class Vendedor
     {

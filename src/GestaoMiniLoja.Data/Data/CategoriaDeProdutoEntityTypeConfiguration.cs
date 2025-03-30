@@ -1,4 +1,4 @@
-﻿using GestaoMiniLoja.Domain.Models;
+﻿using GestaoMiniLoja.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
