@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace GestaoMiniLoja.Web.Data
+namespace GestaoMiniLoja.Data.Data
 {
     public class ProdutoEntityTypeConfiguration : IEntityTypeConfiguration<Produto>
     {
@@ -16,7 +16,7 @@ namespace GestaoMiniLoja.Web.Data
             builder.Property(e => e.PrecoUnitario).HasColumnType("DECIMAL(10,2)").IsRequired();
             builder.Property(e => e.QuantidadeEmEstoque).HasColumnType("INT").IsRequired();
             builder.Property(e => e.CategoriaDeProdutoId).HasColumnType("INT").IsRequired();
-            builder.Property(e => e.VendedorId).HasColumnType("INT").IsRequired();
+            builder.Property(e => e.VendedorId).HasColumnType("uniqueidentifier").IsRequired();
             builder.HasOne(e => e.CategoriaDeProduto).WithMany().HasForeignKey(e => e.CategoriaDeProdutoId);
         }
     }

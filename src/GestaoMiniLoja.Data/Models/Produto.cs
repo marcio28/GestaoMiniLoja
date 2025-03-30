@@ -10,7 +10,7 @@
         public required int QuantidadeEmEstoque { get; set; }
         public required int CategoriaDeProdutoId { get; set; }
         public required CategoriaDeProduto CategoriaDeProduto { get; set; }
-        public required int VendedorId { get; set; }
+        public required Guid VendedorId { get; set; }
         public required Vendedor Vendedor { get; set; }
     }
 }

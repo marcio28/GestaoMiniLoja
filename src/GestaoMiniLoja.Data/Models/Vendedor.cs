@@ -2,7 +2,6 @@
 {
     public class Vendedor
     {
-        public required int Id { get; set; }
-
+        public required Guid Id { get; set; }
     }
 }

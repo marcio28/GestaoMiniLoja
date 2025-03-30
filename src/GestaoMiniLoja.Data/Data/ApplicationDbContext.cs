@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace GestaoMiniLoja.Web.Data
+namespace GestaoMiniLoja.Data.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

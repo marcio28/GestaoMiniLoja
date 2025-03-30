@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace GestaoMiniLoja.Web.Data
+namespace GestaoMiniLoja.Data.Data
 {
     public class VendedorEntityTypeConfiguration : IEntityTypeConfiguration<Vendedor>
     {
