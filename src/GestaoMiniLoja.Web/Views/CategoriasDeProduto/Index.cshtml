@@ -1,0 +1,47 @@
+﻿@model IEnumerable<GestaoMiniLoja.Data.Models.CategoriaDeProduto>
+
+@{
+    ViewData["Title"] = "Categorias de Produto";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (TempData["Sucesso"] != null || ViewData["Sucesso"] != null)
+{
+    var mensagem = TempData["Sucesso"] != null ? TempData["Sucesso"] : ViewData["Sucesso"];
+
+    <div style="padding-top: 15px"></div>
+
+    <div id="msg_box" class="alert alert-success">
+        <h4 id="msgRetorno">@Html.Raw(mensagem)</h4>
+    </div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-primary"><spam class="fa fa-plus"></spam> Criar nova</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Descricao)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Descricao)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-warning"><spam class="fa fa-search"></spam></a>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info"><spam class="fa fa-pencil-alt"></a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger"><spam class="fa fa-trash"></spam></a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
