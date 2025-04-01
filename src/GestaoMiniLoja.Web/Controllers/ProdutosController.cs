@@ -57,14 +57,13 @@ namespace GestaoMiniLoja.Web.Controllers
         public IActionResult Create()
         {
             ViewData["CategoriaDeProdutoId"] = new SelectList(_context.CategoriasDeProduto, "Id", "Descricao");
-            //ViewData["VendedorId"] = new SelectList(_context.Vendedores, "Id", "Id");
 
             return View();
         }
 
         [HttpPost("novo")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Descricao,CaminhoDaImagem,PrecoUnitario,QuantidadeEmEstoque,CategoriaDeProdutoId,VendedorId")] Produto produto)
+        public async Task<IActionResult> Create([Bind("Id,Nome,Descricao,CaminhoDaImagem,PrecoUnitario,QuantidadeEmEstoque,CategoriaDeProdutoId")] Produto produto)
         {
             if (_context.Produtos == null) 
                 return Problem(MensagemAcessoNaoConfigurado);
@@ -74,9 +73,15 @@ namespace GestaoMiniLoja.Web.Controllers
             if (_usuarioIdString == null) 
                 return Problem(MensagemUsuarioNaoIdentificado);
 
+            _ = ModelState.Remove("Vendedor");
+            _ = ModelState.Remove("VendedorId");
+            _ = ModelState.Remove("CategoriaDeProduto");
+
             if (ModelState.IsValid)
             {
+
                 produto.VendedorId = new Guid(_usuarioIdString);
+                CriarVendedorSeNaoExiste(produto.VendedorId);
 
                 _context.Add(produto);
 
@@ -86,7 +91,6 @@ namespace GestaoMiniLoja.Web.Controllers
             }
 
             ViewData["CategoriaDeProdutoId"] = new SelectList(_context.CategoriasDeProduto, "Id", "Descricao", produto.CategoriaDeProdutoId);
-            //ViewData["VendedorId"] = new SelectList(_context.Vendedores, "Id", "Id", produto.VendedorId);
 
             return View(produto);
         }
@@ -103,7 +107,6 @@ namespace GestaoMiniLoja.Web.Controllers
                 return NotFound();
 
             ViewData["CategoriaDeProdutoId"] = new SelectList(_context.CategoriasDeProduto, "Id", "Descricao", produto.CategoriaDeProdutoId);
-            //ViewData["VendedorId"] = new SelectList(_context.Vendedores, "Id", "Id", produto.VendedorId);
 
             return View(produto);
         }
@@ -139,7 +142,6 @@ namespace GestaoMiniLoja.Web.Controllers
             }
 
             ViewData["CategoriaDeProdutoId"] = new SelectList(_context.CategoriasDeProduto, "Id", "Descricao", produto.CategoriaDeProdutoId);
-            //ViewData["VendedorId"] = new SelectList(_context.Vendedores, "Id", "Id", produto.VendedorId);
 
             return View(produto);
         }
@@ -188,5 +190,14 @@ namespace GestaoMiniLoja.Web.Controllers
             return user?.Id.ToString();
         }
 
+        // TODO: Extrair método, para ser usado pela API também
+        private void CriarVendedorSeNaoExiste(Guid id)
+        {
+            if (!_context.Vendedores.Any(v => v.Id == id))
+            {
+                Vendedor vendedor = new() { Id = id };
+                _context.Vendedores.Add(vendedor);
+            }
+        }
     }
 }

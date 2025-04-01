@@ -1,69 +1,86 @@
 ﻿@model IEnumerable<GestaoMiniLoja.Data.Models.Produto>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Produtos";
 }
 
-<h1>Index</h1>
+<h1>@ViewData["Title"]</h1>
+@if (TempData["Sucesso"] != null || ViewData["Sucesso"] != null)
+{
+    var mensagem = TempData["Sucesso"] != null ? TempData["Sucesso"] : ViewData["Sucesso"];
+
+    <div style="padding-top: 15px"></div>
+
+    <div id="msg_box" class="alert alert-success">
+        <h4 id="msgRetorno">@Html.Raw(mensagem)</h4>
+    </div>
+}
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary"><spam class="fa fa-plus"></spam> Criar novo</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Nome)
             </th>
+
             <th>
                 @Html.DisplayNameFor(model => model.Descricao)
             </th>
+
             <th>
                 @Html.DisplayNameFor(model => model.CaminhoDaImagem)
             </th>
+
             <th>
                 @Html.DisplayNameFor(model => model.PrecoUnitario)
             </th>
+
             <th>
                 @Html.DisplayNameFor(model => model.QuantidadeEmEstoque)
             </th>
+
             <th>
                 @Html.DisplayNameFor(model => model.CategoriaDeProduto)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Vendedor)
             </th>
             <th></th>
         </tr>
     </thead>
+
     <tbody>
 @foreach (var item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Nome)
             </td>
+
             <td>
                 @Html.DisplayFor(modelItem => item.Descricao)
             </td>
+
             <td>
                 @Html.DisplayFor(modelItem => item.CaminhoDaImagem)
             </td>
+
             <td>
                 @Html.DisplayFor(modelItem => item.PrecoUnitario)
             </td>
+
             <td>
                 @Html.DisplayFor(modelItem => item.QuantidadeEmEstoque)
             </td>
+
             <td>
                 @Html.DisplayFor(modelItem => item.CategoriaDeProduto.Descricao)
             </td>
+
             <td>
-                @Html.DisplayFor(modelItem => item.Vendedor.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-warning"><spam class="fa fa-search"></spam></a>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info"><spam class="fa fa-pencil-alt"></a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger"><spam class="fa fa-trash"></spam></a>
             </td>
         </tr>
 }
