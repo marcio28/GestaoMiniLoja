@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestaoMiniLoja.Web.Controllers
 {
+    [Route("produtos")]
     public class ProdutosController(ApplicationDbContext context, UserManager<IdentityUser> userManager) : Controller
     {
         const string MensagemAcessoNaoConfigurado = "Não configurado o acesso aos dados de produtos.";
@@ -15,7 +16,6 @@ namespace GestaoMiniLoja.Web.Controllers
         readonly UserManager<IdentityUser> _userManager = userManager;
         string? _usuarioIdString;
 
-        [Route("produtos")]
         public async Task<IActionResult> Index()
         {
             _usuarioIdString = await ObterUsuarioIdAsync();

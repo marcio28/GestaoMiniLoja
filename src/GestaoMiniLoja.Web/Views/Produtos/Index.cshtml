@@ -78,9 +78,7 @@
             </td>
 
             <td>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-warning"><spam class="fa fa-search"></spam></a>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info"><spam class="fa fa-pencil-alt"></a>
-                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger"><spam class="fa fa-trash"></spam></a>
+                <partial name="_AcoesDeItemDeListaPartial" model="@item.Id" />
             </td>
         </tr>
 }
