@@ -19,15 +19,16 @@ namespace GestaoMiniLoja.Data.Models
         [StringLength(200, ErrorMessage = "O campo {0} não pode conter mais de {1} caracteres.")]
         public string? CaminhoDaImagem { get; set; }
 
-        [DataType(DataType.Currency)]
         [Display(Name = "Preço unitário")]
-        [Range(0.01, 9999999.99, ErrorMessage = "O {0} deve estar entre {1} e {2}.")]
-        public required decimal PrecoUnitario { get; set; }
+        [Required(ErrorMessage = "O campo {0} é obrigatório.")]
+        public required string PrecoUnitario { get; set; }
 
         [Display(Name = "Qtd. em estoque")]
+        [Required(ErrorMessage = "O campo {0} é obrigatório.")]
         public required int QuantidadeEmEstoque { get; set; }
 
         [Display(Name = "Id categoria")]
+        [Required(ErrorMessage = "O campo {0} é obrigatório.")]
         public required int CategoriaDeProdutoId { get; set; }
 
         [Display(Name = "Categoria")]

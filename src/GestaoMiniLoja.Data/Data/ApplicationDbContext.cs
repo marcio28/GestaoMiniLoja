@@ -5,11 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestaoMiniLoja.Data.Data
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext(options)
+    public class ApplicationDbContext : IdentityDbContext
     {
         public DbSet<Vendedor> Vendedores { get; set; }
         public DbSet<CategoriaDeProduto> CategoriasDeProduto { get; set; }
         public DbSet<Produto> Produtos { get; set; }
+
+        public ApplicationDbContext()
+        {
+        }
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
