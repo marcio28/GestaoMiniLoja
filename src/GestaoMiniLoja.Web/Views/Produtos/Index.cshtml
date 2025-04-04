@@ -5,6 +5,7 @@
 }
 
 <h1>@ViewData["Title"]</h1>
+
 @if (TempData["Sucesso"] != null || ViewData["Sucesso"] != null)
 {
     var mensagem = TempData["Sucesso"] != null ? TempData["Sucesso"] : ViewData["Sucesso"];
@@ -35,11 +36,11 @@
                 @Html.DisplayNameFor(model => model.CaminhoDaImagem)
             </th>
 
-            <th>
+            <th class ="text-end">
                 @Html.DisplayNameFor(model => model.PrecoUnitario)
             </th>
 
-            <th>
+            <th class="text-end">
                 @Html.DisplayNameFor(model => model.QuantidadeEmEstoque)
             </th>
 
@@ -65,11 +66,11 @@
                 @Html.DisplayFor(modelItem => item.CaminhoDaImagem)
             </td>
 
-            <td>
+            <td class="text-end">
                 @Html.DisplayFor(modelItem => item.PrecoUnitario)
             </td>
 
-            <td>
+            <td class="text-end">
                 @Html.DisplayFor(modelItem => item.QuantidadeEmEstoque)
             </td>
 

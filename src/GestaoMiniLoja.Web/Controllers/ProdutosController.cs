@@ -87,6 +87,8 @@ namespace GestaoMiniLoja.Web.Controllers
 
                 await _context.SaveChangesAsync();
 
+                TempData["Sucesso"] = "Produto incluído com sucesso.";
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -120,6 +122,9 @@ namespace GestaoMiniLoja.Web.Controllers
 
             if (id != produto.Id)
                 return BadRequest();
+
+            _ = ModelState.Remove("Vendedor");
+            _ = ModelState.Remove("CategoriaDeProduto");
 
             if (ModelState.IsValid)
             {
@@ -175,6 +180,8 @@ namespace GestaoMiniLoja.Web.Controllers
                 _context.Produtos.Remove(produto);
 
             await _context.SaveChangesAsync();
+
+            TempData["Sucesso"] = "Produto excluído com sucesso.";
 
             return RedirectToAction(nameof(Index));
         }
