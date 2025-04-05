@@ -48,6 +48,8 @@ namespace GestaoMiniLoja.Web.Controllers
                 _context.Add(categoriaDeProduto);
                 await _context.SaveChangesAsync();
 
+                TempData["Sucesso"] = "Categoria de produto incluída com sucesso.";
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -131,6 +133,8 @@ namespace GestaoMiniLoja.Web.Controllers
             _context.CategoriasDeProduto.Remove(categoriaDeProduto);
             await _context.SaveChangesAsync();
 
+            TempData["Sucesso"] = "Categoria de produto excluída com sucesso.";
+            
             return RedirectToAction(nameof(Index));
         }
 

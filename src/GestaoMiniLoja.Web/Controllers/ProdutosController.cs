@@ -63,7 +63,7 @@ namespace GestaoMiniLoja.Web.Controllers
 
         [HttpPost("novo")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Descricao,CaminhoDaImagem,PrecoUnitario,QuantidadeEmEstoque,CategoriaDeProdutoId")] Produto produto)
+        public async Task<IActionResult> Create([Bind("Id,Nome,Descricao,CaminhoDaImagem,Preco,QuantidadeEmEstoque,CategoriaDeProdutoId")] Produto produto)
         {
             if (_context.Produtos == null) 
                 return Problem(MensagemAcessoNaoConfigurado);
@@ -115,7 +115,7 @@ namespace GestaoMiniLoja.Web.Controllers
 
         [HttpPost("editar/{id:int}"), ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Descricao,CaminhoDaImagem,PrecoUnitario,QuantidadeEmEstoque,CategoriaDeProdutoId,VendedorId")] Produto produto)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Descricao,CaminhoDaImagem,Preco,QuantidadeEmEstoque,CategoriaDeProdutoId,VendedorId")] Produto produto)
         {
             if (_context.Produtos == null)
                 return Problem(MensagemAcessoNaoConfigurado);

@@ -4,6 +4,7 @@ using GestaoMiniLoja.Data.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestaoMiniLoja.Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250405122516_MudandoTipoDoCampoPreco")]
+    partial class MudandoTipoDoCampoPreco
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,7 +68,10 @@ namespace GestaoMiniLoja.Web.Data.Migrations
 
                     b.Property<string>("Preco")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(20)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PrecoUnitario")
+                        .HasColumnType("DECIMAL(10,2)");
 
                     b.Property<int>("QuantidadeEmEstoque")
                         .HasColumnType("INT");
