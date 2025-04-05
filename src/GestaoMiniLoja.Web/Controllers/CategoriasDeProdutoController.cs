@@ -2,30 +2,30 @@
 using Microsoft.EntityFrameworkCore;
 using GestaoMiniLoja.Data.Data;
 using GestaoMiniLoja.Data.Models;
+using GestaoMiniLoja.Data.Services;
 
 namespace GestaoMiniLoja.Web.Controllers
 {
     [Route("categorias-de-produto")]
     public class CategoriasDeProdutoController(ApplicationDbContext context) : Controller
     {
-        private const string MensagemAcessoNaoConfigurado = "Não configurado o acesso aos dados de categorias de produto.";
-        private readonly ApplicationDbContext _context = context;
+        private readonly CadastroDeCategoriaDeProdutoService _cadastroDeCategoriaDeProduto = new(context);
 
         public async Task<IActionResult> Index()
         {
-            if (_context.CategoriasDeProduto == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
+                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
 
-            return View(await _context.CategoriasDeProduto.ToListAsync());
+            return View(await _cadastroDeCategoriaDeProduto.ObterTodos());
         }
 
         [Route("detalhes/{id:int}")]
         public async Task<IActionResult> Details(int id)
         {
-            if (_context.CategoriasDeProduto == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
+                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
 
-            var categoriaDeProduto = await _context.CategoriasDeProduto.FirstOrDefaultAsync(m => m.Id == id);
+            var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterOuDefaultAsync(id);
 
             if (categoriaDeProduto == null)
                 return NotFound();
@@ -40,15 +40,14 @@ namespace GestaoMiniLoja.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Descricao")] CategoriaDeProduto categoriaDeProduto)
         {
-            if (_context.CategoriasDeProduto == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
+                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
 
             if (ModelState.IsValid)
             {
-                _context.Add(categoriaDeProduto);
-                await _context.SaveChangesAsync();
+                await _cadastroDeCategoriaDeProduto.Incluir(categoriaDeProduto);
 
-                TempData["Sucesso"] = "Categoria de produto incluída com sucesso.";
+                TempData["Sucesso"] = CadastroDeCategoriaDeProdutoService.MensagemInclusaoBemSucedida;
 
                 return RedirectToAction(nameof(Index));
             }
@@ -59,12 +58,12 @@ namespace GestaoMiniLoja.Web.Controllers
         [Route("editar/{id:int}")]
         public async Task<IActionResult> Edit(int id)
         {
-            if (_context.CategoriasDeProduto == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado()) 
+                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
 
-            var categoriaDeProduto = await _context.CategoriasDeProduto.FindAsync(id);
+            var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterAsync(id);
 
-            if (categoriaDeProduto == null)
+            if (categoriaDeProduto == null) 
                 return NotFound();
 
             return View(categoriaDeProduto);
@@ -74,8 +73,8 @@ namespace GestaoMiniLoja.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Descricao")] CategoriaDeProduto categoriaDeProduto)
         {
-            if (_context.CategoriasDeProduto == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
+                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
 
             if (id != categoriaDeProduto.Id)
                 return BadRequest();
@@ -84,18 +83,17 @@ namespace GestaoMiniLoja.Web.Controllers
             {
                 try
                 {
-                    _context.Update(categoriaDeProduto);
-                    await _context.SaveChangesAsync();
+                    await _cadastroDeCategoriaDeProduto.Atualizar(categoriaDeProduto);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoriaDeProdutoExists(categoriaDeProduto.Id))
+                    if (!await _cadastroDeCategoriaDeProduto.Existe(categoriaDeProduto.Id))
                         return NotFound();
                     else
                         throw;
                 }
 
-                TempData["Sucesso"] = "Categoria de produto editada com sucesso.";
+                TempData["Sucesso"] = CadastroDeCategoriaDeProdutoService.MensagemEdicaoBemSucedida;
 
                 return RedirectToAction(nameof(Index));
             }
@@ -106,38 +104,40 @@ namespace GestaoMiniLoja.Web.Controllers
         [Route("excluir/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (_context.CategoriasDeProduto == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
+                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
 
-            var categoriaDeProduto = await _context.CategoriasDeProduto.FirstOrDefaultAsync(m => m.Id == id);
+            var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterOuDefaultAsync(id);
 
-            if (categoriaDeProduto == null)
+            if (categoriaDeProduto == null) 
                 return NotFound();
 
             return View(categoriaDeProduto);
         }
 
-        // POST: CategoriaDeProdutos/Delete/5
         [HttpPost("excluir/{id:int}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.CategoriasDeProduto == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
+                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
 
-            var categoriaDeProduto = await _context.CategoriasDeProduto.FindAsync(id);
+            var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterAsync(id);
 
             if (categoriaDeProduto == null)
                 return NotFound();
 
-            _context.CategoriasDeProduto.Remove(categoriaDeProduto);
-            await _context.SaveChangesAsync();
-
-            TempData["Sucesso"] = "Categoria de produto excluída com sucesso.";
+            if (await _cadastroDeCategoriaDeProduto.ContemAssociacoes(id)) 
+            { 
+                TempData["Falha"] = CadastroDeCategoriaDeProdutoService.MensagemExclusaoProibidaPorAssociacaoAProduto;
+                return View(categoriaDeProduto);
+            }
             
+            await _cadastroDeCategoriaDeProduto.Excluir(id);
+
+            TempData["Sucesso"] = CadastroDeCategoriaDeProdutoService.MensagemExclusaoBemSucedida;
+
             return RedirectToAction(nameof(Index));
         }
-
-        private bool CategoriaDeProdutoExists(int id) => _context.CategoriasDeProduto.Any(e => e.Id == id);
     }
 }

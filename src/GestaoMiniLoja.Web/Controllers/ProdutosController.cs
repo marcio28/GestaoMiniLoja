@@ -176,8 +176,10 @@ namespace GestaoMiniLoja.Web.Controllers
 
             var produto = await _context.Produtos.FindAsync(id);
 
-            if (produto != null)
-                _context.Produtos.Remove(produto);
+            if (produto == null)
+                return NotFound();
+
+            _context.Produtos.Remove(produto);
 
             await _context.SaveChangesAsync();
 

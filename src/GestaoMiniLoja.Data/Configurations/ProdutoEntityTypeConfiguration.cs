@@ -17,7 +17,7 @@ namespace GestaoMiniLoja.Data.Configurations
             builder.Property(e => e.QuantidadeEmEstoque).HasColumnType("INT").IsRequired();
             builder.Property(e => e.CategoriaDeProdutoId).HasColumnType("INT").IsRequired();
             builder.Property(e => e.VendedorId).HasColumnType("uniqueidentifier").IsRequired();
-            builder.HasOne(e => e.CategoriaDeProduto).WithMany().HasForeignKey(e => e.CategoriaDeProdutoId);
+            builder.HasOne(e => e.CategoriaDeProduto).WithMany().HasForeignKey(e => e.CategoriaDeProdutoId).OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
