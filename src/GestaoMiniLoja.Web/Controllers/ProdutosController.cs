@@ -1,5 +1,6 @@
 ﻿using GestaoMiniLoja.Data.Data;
 using GestaoMiniLoja.Data.Models;
+using GestaoMiniLoja.Data.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,54 +11,74 @@ namespace GestaoMiniLoja.Web.Controllers
     [Route("produtos")]
     public class ProdutosController(ApplicationDbContext context, UserManager<IdentityUser> userManager) : Controller
     {
-        const string MensagemAcessoNaoConfigurado = "Não configurado o acesso aos dados de produtos.";
         const string MensagemUsuarioNaoIdentificado = "Usuário não identificado.";
-        readonly ApplicationDbContext _context = context;
+        private readonly CadastroDeCategoriaDeProdutoService _cadastroDeCategoriaProduto = new(context);
+        private readonly CadastroDeProdutoService _cadastroDeProduto = new(context);
+        private readonly CadastroDeVendedorService _cadastroDeVendedor = new(context);
         readonly UserManager<IdentityUser> _userManager = userManager;
         string? _usuarioIdString;
 
         public async Task<IActionResult> Index()
         {
-            _usuarioIdString = await ObterUsuarioIdAsync();
+            try
+            {
+                _usuarioIdString = await ObterUsuarioIdAsync();
 
-            if (_usuarioIdString == null) 
-                return Problem(MensagemUsuarioNaoIdentificado);
+                if (_usuarioIdString == null)
+                {
+                    TempData["Falha"] = MensagemUsuarioNaoIdentificado;
+                    return View();
+                }
 
-            var applicationDbContext = _context.Produtos.Include(p => p.CategoriaDeProduto)
-                                                        .Include(p => p.Vendedor)
-                                                        .Where(p => p.VendedorId.ToString() == _usuarioIdString);
+                return View(await _cadastroDeProduto.ObterPorVendedorAsync(_usuarioIdString));
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View();
+            }
 
-            return View(await applicationDbContext.ToListAsync());
         }
 
         [Route("detalhes/{id:int}")]
         public async Task<IActionResult> Details(int id)
         {
-            if (_context.Produtos == null) 
-                return Problem(MensagemAcessoNaoConfigurado);
+            try
+            {
+                _usuarioIdString = await ObterUsuarioIdAsync();
 
-            _usuarioIdString = await ObterUsuarioIdAsync();
+                if (_usuarioIdString == null)
+                {
+                    TempData["Falha"] = MensagemUsuarioNaoIdentificado;
+                    return RedirectToAction(nameof(Index));
+                }
 
-            if (_usuarioIdString == null) 
-                return Problem(MensagemUsuarioNaoIdentificado);
+                var produto = await _cadastroDeProduto.ObterOuDefaultAsync(id);
 
-            var produto = await _context.Produtos.Include(p => p.CategoriaDeProduto)
-                                                 .Include(p => p.Vendedor)
-                                                 .FirstOrDefaultAsync(m => m.Id == id);
-            
-            if (produto == null) 
-                return NotFound();
+                if (produto == null)
+                { 
+                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
+                    return RedirectToAction(nameof(Index));
+                }
 
-            if (produto.VendedorId.ToString() != _usuarioIdString) return BadRequest();
-
-            return View(produto);
+                if (produto.VendedorId.ToString() != _usuarioIdString)
+                {
+                    TempData["Falha"] = CadastroDeProdutoService.MensagemAcessoNaoPermitido;
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(produto);
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View();
+            }
         }
 
         [Route("novo")]
         public IActionResult Create()
         {
-            ViewData["CategoriaDeProdutoId"] = new SelectList(_context.CategoriasDeProduto, "Id", "Descricao");
-
+            ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao");
             return View();
         }
 
@@ -65,148 +86,154 @@ namespace GestaoMiniLoja.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nome,Descricao,CaminhoDaImagem,Preco,QuantidadeEmEstoque,CategoriaDeProdutoId")] Produto produto)
         {
-            if (_context.Produtos == null) 
-                return Problem(MensagemAcessoNaoConfigurado);
-
-            _usuarioIdString = await ObterUsuarioIdAsync();
-
-            if (_usuarioIdString == null) 
-                return Problem(MensagemUsuarioNaoIdentificado);
-
-            _ = ModelState.Remove("Vendedor");
-            _ = ModelState.Remove("VendedorId");
-            _ = ModelState.Remove("CategoriaDeProduto");
-
-            if (ModelState.IsValid)
+            try
             {
+                _usuarioIdString = await ObterUsuarioIdAsync();
+
+                if (_usuarioIdString == null)
+                {
+                    TempData["Falha"] = MensagemUsuarioNaoIdentificado;
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ModelState.Remove("Vendedor");
+                ModelState.Remove("VendedorId");
+                ModelState.Remove("CategoriaDeProduto");
+
+                if (!ModelState.IsValid)
+                {
+                    ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaDeProdutoId);
+                    return View(produto);
+                }
 
                 produto.VendedorId = new Guid(_usuarioIdString);
-                CriarVendedorSeNaoExiste(produto.VendedorId);
-
-                _context.Add(produto);
-
-                await _context.SaveChangesAsync();
-
-                TempData["Sucesso"] = "Produto incluído com sucesso.";
-
+                await _cadastroDeVendedor.IncluirSeNaoExiste(produto.VendedorId);
+                await _cadastroDeProduto.IncluirAsync(produto);
+                TempData["Sucesso"] = CadastroDeProdutoService.MensagemInclusaoBemSucedida;
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewData["CategoriaDeProdutoId"] = new SelectList(_context.CategoriasDeProduto, "Id", "Descricao", produto.CategoriaDeProdutoId);
-
-            return View(produto);
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View(produto);
+            }
         }
 
         [Route("editar/{id:int}")]
         public async Task<IActionResult> Edit(int id)
         {
-            if (_context.Produtos == null) 
-                return Problem(MensagemAcessoNaoConfigurado);
+            try
+            {
+                var produto = await _cadastroDeProduto.ObterAsync(id);
 
-            var produto = await _context.Produtos.FindAsync(id);
+                if (produto == null)
+                {
+                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
+                    return RedirectToAction(nameof(Index));
+                }
 
-            if (produto == null)
-                return NotFound();
-
-            ViewData["CategoriaDeProdutoId"] = new SelectList(_context.CategoriasDeProduto, "Id", "Descricao", produto.CategoriaDeProdutoId);
-
-            return View(produto);
+                ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaDeProdutoId);
+                return View(produto);
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View();
+            }
         }
 
         [HttpPost("editar/{id:int}"), ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Descricao,CaminhoDaImagem,Preco,QuantidadeEmEstoque,CategoriaDeProdutoId,VendedorId")] Produto produto)
         {
-            if (_context.Produtos == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            ModelState.Remove("Vendedor");
+            ModelState.Remove("CategoriaDeProduto");
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaDeProdutoId);
+                return View(produto);
+            }
 
             if (id != produto.Id)
-                return BadRequest();
-
-            _ = ModelState.Remove("Vendedor");
-            _ = ModelState.Remove("CategoriaDeProduto");
-
-            if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(produto);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProdutoExists(produto.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
-
-                TempData["Sucesso"] = "Produto editado com sucesso.";
-
+                TempData["Falha"] = "Solicitação inapropriada.";
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["CategoriaDeProdutoId"] = new SelectList(_context.CategoriasDeProduto, "Id", "Descricao", produto.CategoriaDeProdutoId);
-
-            return View(produto);
+            try
+            {
+                await _cadastroDeProduto.AtualizarAsync(produto);
+                TempData["Sucesso"] = CadastroDeProdutoService.MensagemAtualizacaoBemSucedida;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _cadastroDeProduto.ExisteAsync(produto.Id))
+                {
+                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
+                    return View(produto);
+                }
+                TempData["Falha"] = CadastroDeProdutoService.MensagemAtualizacaoMalSucedidaPorConcorrencia;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View(produto);
+            }
         }
 
         [Route("excluir/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (_context.Produtos == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            try
+            {
+                var produto = await _cadastroDeProduto.ObterOuDefaultAsync(id);
 
-            var produto = await _context.Produtos.Include(p => p.CategoriaDeProduto)
-                                                 .Include(p => p.Vendedor)
-                                                 .FirstOrDefaultAsync(m => m.Id == id);
+                if (produto == null)
+                {
+                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
+                    return RedirectToAction(nameof(Index));
+                }
 
-            if (produto == null)
-                return NotFound();
-
-            return View(produto);
+                return View(produto);
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost("excluir/{id:int}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Produtos == null)
-                return Problem(MensagemAcessoNaoConfigurado);
+            try
+            {
+                var produto = await _cadastroDeProduto.ObterAsync(id);
 
-            var produto = await _context.Produtos.FindAsync(id);
+                if (produto == null)
+                {
+                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
+                }
 
-            if (produto == null)
-                return NotFound();
-
-            _context.Produtos.Remove(produto);
-
-            await _context.SaveChangesAsync();
-
-            TempData["Sucesso"] = "Produto excluído com sucesso.";
-
+                await _cadastroDeProduto.ExcluirAsync(id);
+                TempData["Sucesso"] = CadastroDeProdutoService.MensagemExclusaoBemSucedida;
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProdutoExists(int id)
-        {
-            return _context.Produtos.Any(e => e.Id == id);
-        }
-
+        // TODO: Extrair método para compartilhar com API
         private async Task<string?> ObterUsuarioIdAsync()
         {
             IdentityUser? user = await _userManager.GetUserAsync(HttpContext.User);
             return user?.Id.ToString();
-        }
-
-        // TODO: Extrair método, para ser usado pela API também
-        private void CriarVendedorSeNaoExiste(Guid id)
-        {
-            if (!_context.Vendedores.Any(v => v.Id == id))
-            {
-                Vendedor vendedor = new() { Id = id };
-                _context.Vendedores.Add(vendedor);
-            }
         }
     }
 }

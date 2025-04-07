@@ -13,24 +13,31 @@ namespace GestaoMiniLoja.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
-                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
-
-            return View(await _cadastroDeCategoriaDeProduto.ObterTodos());
+            try
+            {
+                var categoriasDeProduto = await _cadastroDeCategoriaDeProduto.ObterTodosAsync();
+                return View(categoriasDeProduto);
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View();
+            }
         }
 
         [Route("detalhes/{id:int}")]
         public async Task<IActionResult> Details(int id)
         {
-            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
-                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
-
-            var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterOuDefaultAsync(id);
-
-            if (categoriaDeProduto == null)
-                return NotFound();
-
-            return View(categoriaDeProduto);
+            try
+            {
+                var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterOuDefaultAsync(id);
+                return View(categoriaDeProduto);
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View();
+            }
         }
 
         [Route("nova")]
@@ -40,103 +47,115 @@ namespace GestaoMiniLoja.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Descricao")] CategoriaDeProduto categoriaDeProduto)
         {
-            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
-                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
+            if (!ModelState.IsValid)
+                return View(categoriaDeProduto);
 
-            if (ModelState.IsValid)
+            try
             {
-                await _cadastroDeCategoriaDeProduto.Incluir(categoriaDeProduto);
-
+                await _cadastroDeCategoriaDeProduto.IncluirAsync(categoriaDeProduto);
                 TempData["Sucesso"] = CadastroDeCategoriaDeProdutoService.MensagemInclusaoBemSucedida;
-
                 return RedirectToAction(nameof(Index));
             }
-
-            return View(categoriaDeProduto);
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View(categoriaDeProduto);
+            }
         }
 
         [Route("editar/{id:int}")]
         public async Task<IActionResult> Edit(int id)
         {
-            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado()) 
-                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
-
-            var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterAsync(id);
-
-            if (categoriaDeProduto == null) 
-                return NotFound();
-
-            return View(categoriaDeProduto);
+            try
+            {
+                var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterAsync(id);
+                return View(categoriaDeProduto);
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View();
+            }
         }
 
         [HttpPost("editar/{id:int}"), ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Descricao")] CategoriaDeProduto categoriaDeProduto)
         {
-            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
-                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
+            if (!ModelState.IsValid)
+                return View(categoriaDeProduto);
 
             if (id != categoriaDeProduto.Id)
-                return BadRequest();
-
-            if (ModelState.IsValid)
             {
-                try
-                {
-                    await _cadastroDeCategoriaDeProduto.Atualizar(categoriaDeProduto);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await _cadastroDeCategoriaDeProduto.Existe(categoriaDeProduto.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
-
-                TempData["Sucesso"] = CadastroDeCategoriaDeProdutoService.MensagemEdicaoBemSucedida;
-
+                TempData["Falha"] = "Solicitação inapropriada.";
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(categoriaDeProduto);
+            try
+            {
+                await _cadastroDeCategoriaDeProduto.AtualizarAsync(categoriaDeProduto);
+                TempData["Sucesso"] = CadastroDeCategoriaDeProdutoService.MensagemAtualizacaoBemSucedida;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _cadastroDeCategoriaDeProduto.ExisteAsync(categoriaDeProduto.Id))
+                {
+                    TempData["Falha"] = CadastroDeCategoriaDeProdutoService.MensagemEntidadeNaoEncontrada;
+                    return View(categoriaDeProduto);
+                }
+                TempData["Falha"] = CadastroDeCategoriaDeProdutoService.MensagemAtualizacaoMalSucedidaPorConcorrencia;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+                return View(categoriaDeProduto);
+            }
         }
 
         [Route("excluir/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
-                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
+            try
+            {
+                var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterOuDefaultAsync(id);
 
-            var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterOuDefaultAsync(id);
+                if (categoriaDeProduto == null)
+                {
+                    TempData["Falha"] = CadastroDeCategoriaDeProdutoService.MensagemEntidadeNaoEncontrada;
+                    return RedirectToAction(nameof(Index));
+                }
 
-            if (categoriaDeProduto == null) 
-                return NotFound();
-
-            return View(categoriaDeProduto);
+                return View(categoriaDeProduto);
+            }
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost("excluir/{id:int}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!_cadastroDeCategoriaDeProduto.EstaConfigurado())
-                return Problem(CadastroDeCategoriaDeProdutoService.MensagemAcessoNaoConfigurado);
+            try
+            {
+                var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterAsync(id);
 
-            var categoriaDeProduto = await _cadastroDeCategoriaDeProduto.ObterAsync(id);
+                if (categoriaDeProduto == null)
+                {
+                    TempData["Falha"] = CadastroDeCategoriaDeProdutoService.MensagemEntidadeNaoEncontrada;
+                }
 
-            if (categoriaDeProduto == null)
-                return NotFound();
-
-            if (await _cadastroDeCategoriaDeProduto.ContemAssociacoes(id)) 
-            { 
-                TempData["Falha"] = CadastroDeCategoriaDeProdutoService.MensagemExclusaoProibidaPorAssociacaoAProduto;
-                return View(categoriaDeProduto);
+                await _cadastroDeCategoriaDeProduto.ExcluirAsync(id);
+                TempData["Sucesso"] = CadastroDeCategoriaDeProdutoService.MensagemExclusaoBemSucedida;
             }
-            
-            await _cadastroDeCategoriaDeProduto.Excluir(id);
-
-            TempData["Sucesso"] = CadastroDeCategoriaDeProdutoService.MensagemExclusaoBemSucedida;
-
+            catch (RegraDeNegocioException rne)
+            {
+                TempData["Falha"] = rne.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
     }

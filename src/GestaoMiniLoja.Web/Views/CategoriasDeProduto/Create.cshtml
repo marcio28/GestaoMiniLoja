@@ -6,6 +6,15 @@
 
 <h2>@ViewData["Title"]</h2>
 
+@if (TempData["Falha"] != null)
+{
+    <div style="padding-top: 15px"></div>
+
+    <div id="msg_box" class="alert alert-danger">
+        <h4 id="msgRetorno">@Html.Raw(TempData["Falha"])</h4>
+    </div>
+}
+
 <h4>Preencha os dados corretamente</h4>
 <hr />
 
