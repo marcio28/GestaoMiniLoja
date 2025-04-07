@@ -66,8 +66,8 @@ A estrutura do projeto é organizada da seguinte forma:
 ### **Passos para Execução**
 
 1. **Clone o Repositório:**
-   - `git clone https://github.com/marcio28/gestao-mini-loja.git`
-   - `cd gestao-mini-loja`
+   - `git clone https://github.com/marcio28/GestaoMiniLoja.git`
+   - `cd marcio28/GestaoMiniLoja`
 
 2. **Configuração do Banco de Dados:**
    - No arquivo `appsettings.json`, configure a string de conexão do SQL Server.
