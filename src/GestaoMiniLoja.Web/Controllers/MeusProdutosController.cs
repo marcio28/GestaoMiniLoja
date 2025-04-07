@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore;
 namespace GestaoMiniLoja.Web.Controllers
 {
     [Authorize]
-    [Route("produtos")]
-    public class ProdutosController(ApplicationDbContext context, UserManager<IdentityUser> userManager) : Controller
+    [Route("meus-produtos")]
+    public class MeusProdutosController(ApplicationDbContext context, UserManager<IdentityUser> userManager) : Controller
     {
         const string MensagemUsuarioNaoIdentificado = "Usuário não identificado.";
         private readonly CadastroDeCategoriaDeProdutoService _cadastroDeCategoriaProduto = new(context);

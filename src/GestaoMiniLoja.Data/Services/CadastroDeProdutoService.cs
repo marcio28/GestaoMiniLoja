@@ -17,6 +17,14 @@ namespace GestaoMiniLoja.Data.Services
         public static readonly string MensagemExclusaoBemSucedida = "Produto excluído com sucesso.";
         private readonly ApplicationDbContext _dbContext = dbContext;
 
+        public async Task<List<Produto>> ObterDisponiveisEmEstoqueAsync()
+        {
+            var queryable = _dbContext.Produtos.Include(p => p.CategoriaDeProduto)
+                                               .Include(p => p.Vendedor)
+                                               .Where(p => p.QuantidadeEmEstoque > 0);
+            return await queryable.ToListAsync();
+        }
+
         public async Task<List<Produto>> ObterPorVendedorAsync(string vendedorIdString)
         {
             Guid usuarioGuid = Guid.Parse(vendedorIdString);
