@@ -74,7 +74,7 @@ namespace GestaoMiniLoja.Data.Services
 
         private async Task<Produto?> ObterPorNomeAsync(string nome)
         {
-            return await _dbContext.Produtos.FirstOrDefaultAsync(c => c.Nome == nome);
+            return await _dbContext.Produtos.AsNoTracking().FirstOrDefaultAsync(c => c.Nome == nome);
         }
 
         private bool EstaConfigurado()

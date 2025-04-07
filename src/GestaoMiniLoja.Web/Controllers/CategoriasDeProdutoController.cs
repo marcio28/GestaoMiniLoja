@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using GestaoMiniLoja.Data.Data;
 using GestaoMiniLoja.Data.Models;
 using GestaoMiniLoja.Data.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GestaoMiniLoja.Web.Controllers
 {
+    [Authorize]
     [Route("categorias-de-produto")]
     public class CategoriasDeProdutoController(ApplicationDbContext context) : Controller
     {

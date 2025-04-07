@@ -1,6 +1,7 @@
 ﻿using GestaoMiniLoja.Data.Data;
 using GestaoMiniLoja.Data.Models;
 using GestaoMiniLoja.Data.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestaoMiniLoja.Web.Controllers
 {
+    [Authorize]
     [Route("produtos")]
     public class ProdutosController(ApplicationDbContext context, UserManager<IdentityUser> userManager) : Controller
     {
@@ -149,39 +151,35 @@ namespace GestaoMiniLoja.Web.Controllers
             ModelState.Remove("Vendedor");
             ModelState.Remove("CategoriaDeProduto");
 
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaDeProdutoId);
-                return View(produto);
-            }
-
-            if (id != produto.Id)
-            {
-                TempData["Falha"] = "Solicitação inapropriada.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            try
-            {
-                await _cadastroDeProduto.AtualizarAsync(produto);
-                TempData["Sucesso"] = CadastroDeProdutoService.MensagemAtualizacaoBemSucedida;
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await _cadastroDeProduto.ExisteAsync(produto.Id))
+                if (id != produto.Id)
                 {
-                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
-                    return View(produto);
+                    TempData["Falha"] = "Solicitação inapropriada.";
+                    return RedirectToAction(nameof(Index));
                 }
-                TempData["Falha"] = CadastroDeProdutoService.MensagemAtualizacaoMalSucedidaPorConcorrencia;
-                return RedirectToAction(nameof(Index));
+
+                try
+                {
+                    await _cadastroDeProduto.AtualizarAsync(produto);
+                    TempData["Sucesso"] = CadastroDeProdutoService.MensagemAtualizacaoBemSucedida;
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await _cadastroDeProduto.ExisteAsync(produto.Id))
+                    {
+                        TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
+                    }
+                    TempData["Falha"] = CadastroDeProdutoService.MensagemAtualizacaoMalSucedidaPorConcorrencia;
+                }
+                catch (RegraDeNegocioException rne)
+                {
+                    TempData["Falha"] = rne.Message;
+                }
             }
-            catch (RegraDeNegocioException rne)
-            {
-                TempData["Falha"] = rne.Message;
-                return View(produto);
-            }
+            ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaDeProdutoId);
+            return View(produto);
         }
 
         [Route("excluir/{id:int}")]
@@ -229,7 +227,6 @@ namespace GestaoMiniLoja.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // TODO: Extrair método para compartilhar com API
         private async Task<string?> ObterUsuarioIdAsync()
         {
             IdentityUser? user = await _userManager.GetUserAsync(HttpContext.User);
