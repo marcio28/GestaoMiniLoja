@@ -32,12 +32,12 @@ namespace GestaoMiniLoja.Data.Models
         public required int CategoriaDeProdutoId { get; set; }
 
         [Display(Name = "Categoria")]
-        public required CategoriaDeProduto CategoriaDeProduto { get; set; }
+        public CategoriaDeProduto? CategoriaDeProduto { get; set; }
 
         [Display(Name = "Id vendedor")]
         public required Guid VendedorId { get; set; }
 
         [Display(Name = "Vendedor")]
-        public required Vendedor Vendedor { get; set; }
+        public Vendedor? Vendedor { get; set; }
     }
 }

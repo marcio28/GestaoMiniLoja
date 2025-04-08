@@ -3,7 +3,7 @@ using GestaoMiniLoja.Data.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace GestaoMiniLoja.Data.Data
+namespace GestaoMiniLoja.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

@@ -27,7 +27,7 @@
 }
 
 <p>
-    <a asp-action="Create" class="btn btn-primary"><spam class="fa fa-plus"></spam> Criar novo</a>
+    <a asp-action="Create" class="btn btn-primary"><spam class="fa fa-plus"></spam> Novo produto</a>
 </p>
 
 <table class="table">
@@ -39,10 +39,6 @@
 
             <th>
                 @Html.DisplayNameFor(model => model.Descricao)
-            </th>
-
-            <th>
-                @Html.DisplayNameFor(model => model.CaminhoDaImagem)
             </th>
 
             <th class ="text-end">
@@ -64,27 +60,23 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Nome)
+                @item.Nome
             </td>
 
             <td>
-                @Html.DisplayFor(modelItem => item.Descricao)
-            </td>
-
-            <td>
-                @Html.DisplayFor(modelItem => item.CaminhoDaImagem)
+                @item.Descricao
             </td>
 
             <td class="text-end">
-                @Html.DisplayFor(modelItem => item.Preco)
+                @item.Preco
             </td>
 
             <td class="text-end">
-                @Html.DisplayFor(modelItem => item.QuantidadeEmEstoque)
+                @item.QuantidadeEmEstoque
             </td>
 
             <td>
-                @Html.DisplayFor(modelItem => item.CategoriaDeProduto.Descricao)
+                @item.CategoriaDeProduto?.Descricao
             </td>
 
             <td>

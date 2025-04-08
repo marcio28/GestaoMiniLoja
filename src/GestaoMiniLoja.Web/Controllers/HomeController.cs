@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using GestaoMiniLoja.Data.Data;
+using GestaoMiniLoja.Data;
 using GestaoMiniLoja.Data.Services;
 using GestaoMiniLoja.Web.Models;
 using Microsoft.AspNetCore.Mvc;

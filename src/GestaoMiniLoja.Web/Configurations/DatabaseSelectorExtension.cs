@@ -1,4 +1,4 @@
-﻿using GestaoMiniLoja.Data.Data;
+﻿using GestaoMiniLoja.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestaoMiniLoja.Web.Configurations

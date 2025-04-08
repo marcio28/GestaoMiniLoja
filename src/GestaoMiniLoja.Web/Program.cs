@@ -1,7 +1,6 @@
-using GestaoMiniLoja.Data.Data;
+using GestaoMiniLoja.Data;
 using GestaoMiniLoja.Web.Configurations;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +10,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
 
 builder.Services.AddControllersWithViews();
 
@@ -40,5 +40,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+
+DbMigrationHelpers.EnsureSeedData(app).Wait();
 
 app.Run();

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using GestaoMiniLoja.Data.Data;
 using GestaoMiniLoja.Data.Models;
 using GestaoMiniLoja.Data.Services;
 using Microsoft.AspNetCore.Authorization;
+using GestaoMiniLoja.Data;
 
 namespace GestaoMiniLoja.Web.Controllers
 {

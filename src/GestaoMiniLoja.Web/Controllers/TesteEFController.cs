@@ -1,4 +1,4 @@
-﻿using GestaoMiniLoja.Data.Data;
+﻿using GestaoMiniLoja.Data;
 using GestaoMiniLoja.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 

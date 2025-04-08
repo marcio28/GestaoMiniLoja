@@ -13,23 +13,29 @@
     </div>
 }
 
-<div class="row">
-    @foreach (var item in Model)
-    {
-        <div class="col-md-4">
-            <div class="card text-white bg-info mb-3">
-                <div class="card-header">
-                    <h5 class="card-title">@item.Nome</h5>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">@item.Descricao</p>
-                    <p class="card-text"><strong>@Html.DisplayNameFor(modelItem => item.CategoriaDeProduto):</strong> @item.CategoriaDeProduto.Descricao</p>
-                    <p class="card-text"><strong>@Html.DisplayNameFor(modelItem => item.Vendedor):</strong> @item.Vendedor.Id.ToString().Substring(0, 8)</p>
-                </div>
-                <div class="card-footer text-white">
-                    <p class="card-text"><strong>@item.Preco</strong></p>
+@if (Model != null)
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4">
+                <div class="card text-white bg-info mb-3">
+                    <center>
+                        <img class="card-img-top" src="@item.CaminhoDaImagem" alt="imagem não disponível" style="align-content:center; width: 160px; height: 220px;">
+                    </center>
+                    <div class="card-header">
+                        <h5 class="card-title">@item.Nome</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@item.Descricao</p>
+                        <p class="card-text"><strong>@Html.DisplayNameFor(modelItem => item.CategoriaDeProduto):</strong> @item.CategoriaDeProduto?.Descricao</p>
+                        <p class="card-text"><strong>@Html.DisplayNameFor(modelItem => item.Vendedor):</strong> @item.Vendedor?.Id.ToString().Substring(0, 8)</p>
+                    </div>
+                    <div class="card-footer text-white">
+                        <p class="card-text"><strong>@item.Preco</strong></p>
+                    </div>
                 </div>
             </div>
-        </div>
-    }
-</div>
+        }
+    </div>
+}

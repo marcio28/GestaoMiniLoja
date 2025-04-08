@@ -1,5 +1,4 @@
-﻿using GestaoMiniLoja.Data.Data;
-using GestaoMiniLoja.Data.Models;
+﻿using GestaoMiniLoja.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestaoMiniLoja.Data.Services
