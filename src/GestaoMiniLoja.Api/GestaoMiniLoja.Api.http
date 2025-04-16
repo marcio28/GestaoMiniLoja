@@ -1,0 +1,6 @@
+@GestaoMiniLoja.Api_HostAddress = http://localhost:5004
+
+GET {{GestaoMiniLoja.Api_HostAddress}}/produtos/
+Accept: application/json
+
+###

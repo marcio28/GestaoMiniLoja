@@ -1,9 +1,12 @@
-﻿using GestaoMiniLoja.Data;
-using GestaoMiniLoja.Data.Models;
+﻿using GestaoMiniLoja.Data.Models;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-namespace GestaoMiniLoja.Web.Configurations
+namespace GestaoMiniLoja.Data.Configurations
 {
     public static class DbMigrationHelperExtension
     {

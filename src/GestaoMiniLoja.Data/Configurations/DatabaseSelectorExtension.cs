@@ -1,7 +1,10 @@
-﻿using GestaoMiniLoja.Data;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-namespace GestaoMiniLoja.Web.Configurations
+namespace GestaoMiniLoja.Data.Configurations
 {
     public static class DatabaseSelectorExtension
     {

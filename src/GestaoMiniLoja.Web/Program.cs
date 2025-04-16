@@ -1,5 +1,5 @@
 using GestaoMiniLoja.Data;
-using GestaoMiniLoja.Web.Configurations;
+using GestaoMiniLoja.Data.Configurations;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
