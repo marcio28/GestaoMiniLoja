@@ -1,7 +1,7 @@
-﻿@model IEnumerable<GestaoMiniLoja.Core.Models.Produto>
+﻿@model IEnumerable<GestaoMiniLoja.Core.Models.Categoria>
 
 @{
-    ViewData["Title"] = "Meus produtos";
+    ViewData["Title"] = "Categorias";
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -27,30 +27,14 @@
 }
 
 <p>
-    <a asp-action="Create" class="btn btn-primary"><spam class="fa fa-plus"></spam> Novo produto</a>
+    <a asp-action="Create" class="btn btn-primary"><spam class="fa fa-plus"></spam> Nova categoria</a>
 </p>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Nome)
-            </th>
-
-            <th>
                 @Html.DisplayNameFor(model => model.Descricao)
-            </th>
-
-            <th class ="text-end">
-                @Html.DisplayNameFor(model => model.Preco)
-            </th>
-
-            <th class="text-end">
-                @Html.DisplayNameFor(model => model.Estoque)
-            </th>
-
-            <th>
-                @Html.DisplayNameFor(model => model.Categoria)
             </th>
             <th></th>
         </tr>
@@ -60,25 +44,8 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @item.Nome
+                @Html.DisplayFor(modelItem => item.Descricao)
             </td>
-
-            <td>
-                @item.Descricao
-            </td>
-
-            <td class="text-end">
-                @item.Preco
-            </td>
-
-            <td class="text-end">
-                @item.Estoque
-            </td>
-
-            <td>
-                @item.Categoria?.Descricao
-            </td>
-
             <td>
                 <partial name="_AcoesDeItemDeListaPartial" model="@item.Id" />
             </td>

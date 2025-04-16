@@ -1,5 +1,5 @@
-﻿using GestaoMiniLoja.Data;
-using GestaoMiniLoja.Data.Models;
+﻿using GestaoMiniLoja.Core;
+using GestaoMiniLoja.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,9 +7,9 @@ namespace GestaoMiniLoja.Api.Controllers
 {
     [ApiController]
     [Route("api/produtos")]
-    public class ProdutosController(ApplicationDbContext dbContext) : ControllerBase
+    public class ProdutosController(AppDbContext dbContext) : ControllerBase
     {
-        private readonly ApplicationDbContext _dbContext = dbContext;
+        private readonly AppDbContext _dbContext = dbContext;
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produto>>> GetProdutos()

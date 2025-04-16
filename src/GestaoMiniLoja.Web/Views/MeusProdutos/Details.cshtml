@@ -1,4 +1,4 @@
-﻿@model GestaoMiniLoja.Data.Models.Produto
+﻿@model GestaoMiniLoja.Core.Models.Produto
 
 @{
     ViewData["Title"] = $"Detalhes do produto {Model.Nome}";
@@ -38,17 +38,17 @@
         </dd>
 
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.QuantidadeEmEstoque)
+            @Html.DisplayNameFor(model => model.Estoque)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.QuantidadeEmEstoque)
+            @Html.DisplayFor(model => model.Estoque)
         </dd>
 
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CategoriaDeProduto)
+            @Html.DisplayNameFor(model => model.Categoria)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CategoriaDeProduto.Descricao)
+            @Html.DisplayFor(model => model.DescricaoDaCategoria)
         </dd>
     </dl>
 </div>

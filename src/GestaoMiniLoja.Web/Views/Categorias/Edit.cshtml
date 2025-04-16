@@ -1,0 +1,44 @@
+﻿@model GestaoMiniLoja.Core.Models.Categoria
+
+@{
+    ViewData["Title"] = $"Editar categoria {Model.Descricao}";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["Falha"] != null)
+{
+    <div style="padding-top: 15px"></div>
+
+    <div id="msg_box" class="alert alert-danger">
+        <h4 id="msgRetorno">@Html.Raw(TempData["Falha"])</h4>
+    </div>
+}
+
+<h4>Categoria @Model.Descricao</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="Descricao" class="control-label"></label>
+                <input asp-for="Descricao" class="form-control" />
+                <span asp-validation-for="Descricao" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Salvar" class="btn btn-info" />
+                <a asp-action="Index" class="btn btn-warning">Voltar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

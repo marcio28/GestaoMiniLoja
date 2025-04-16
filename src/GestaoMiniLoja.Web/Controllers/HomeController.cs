@@ -1,41 +1,28 @@
 using System.Diagnostics;
-using GestaoMiniLoja.Data;
-using GestaoMiniLoja.Data.Services;
+using GestaoMiniLoja.Core;
+using GestaoMiniLoja.Core.Services;
 using GestaoMiniLoja.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestaoMiniLoja.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController(ILogger<HomeController> logger, AppDbContext dbContext) : Controller
     {
-        private readonly CadastroDeProdutoService _cadastroDeProduto;
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
-        {
-            _logger = logger;
-            _cadastroDeProduto = new CadastroDeProdutoService(context);
-        }
+        private readonly ProdutosService _produtosService = new(dbContext);
+        private readonly ILogger<HomeController> _logger = logger;
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                var produtos = await _cadastroDeProduto.ObterDisponiveisEmEstoqueAsync();
-                if (produtos.Count == 0)
-                    TempData["Falha"] = "Produtos esgotados! Retorne mais tarde.";
+                var produtos = await _produtosService.ObterDisponiveisAsync();
                 return View(produtos);
             }
             catch (Exception e)
             {
-                TempData["Falha"] = "Estamos fechados no momento. Em breve, muitos produtos para você!";
+                TempData["Falha"] = "Estamos fechados no momento.";
                 _logger.LogError(e, e.Message);
-                return View();
             }
-        }
-
-        public IActionResult Privacy()
-        {
             return View();
         }
 

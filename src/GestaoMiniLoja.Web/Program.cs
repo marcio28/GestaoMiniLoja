@@ -1,5 +1,5 @@
-using GestaoMiniLoja.Data;
-using GestaoMiniLoja.Data.Configurations;
+using GestaoMiniLoja.Core;
+using GestaoMiniLoja.Core.Configurations;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +9,7 @@ builder.AddDatabaseSelector();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<AppDbContext>();
 
 
 builder.Services.AddControllersWithViews();

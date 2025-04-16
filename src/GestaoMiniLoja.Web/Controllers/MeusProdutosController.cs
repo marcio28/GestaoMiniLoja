@@ -1,6 +1,7 @@
-﻿using GestaoMiniLoja.Data;
-using GestaoMiniLoja.Data.Models;
-using GestaoMiniLoja.Data.Services;
+﻿using GestaoMiniLoja.Core;
+using GestaoMiniLoja.Core.Exceptions;
+using GestaoMiniLoja.Core.Models;
+using GestaoMiniLoja.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +12,11 @@ namespace GestaoMiniLoja.Web.Controllers
 {
     [Authorize]
     [Route("meus-produtos")]
-    public class MeusProdutosController(ApplicationDbContext context, UserManager<IdentityUser> userManager) : Controller
+    public class MeusProdutosController(AppDbContext dbContext, UserManager<IdentityUser> userManager) : Controller
     {
-        const string MensagemUsuarioNaoIdentificado = "Usuário não identificado.";
-        private readonly CadastroDeCategoriaDeProdutoService _cadastroDeCategoriaProduto = new(context);
-        private readonly CadastroDeProdutoService _cadastroDeProduto = new(context);
-        private readonly CadastroDeVendedorService _cadastroDeVendedor = new(context);
+        private readonly CategoriasService _categoriasService = new(dbContext);
+        private readonly ProdutosService _produtosService = new(dbContext);
+        private readonly VendedoresService _vendedoresService = new(dbContext);
         readonly UserManager<IdentityUser> _userManager = userManager;
         string? _usuarioIdString;
 
@@ -25,20 +25,15 @@ namespace GestaoMiniLoja.Web.Controllers
             try
             {
                 _usuarioIdString = await ObterUsuarioIdAsync();
+                if (_usuarioIdString == null) return NotFound();
 
-                if (_usuarioIdString == null)
-                {
-                    TempData["Falha"] = MensagemUsuarioNaoIdentificado;
-                    return View();
-                }
-
-                return View(await _cadastroDeProduto.ObterPorVendedorAsync(_usuarioIdString));
+                return View(await _produtosService.ObterPorVendedorAsync(_usuarioIdString));
             }
             catch (RegraDeNegocioException rne)
             {
                 TempData["Falha"] = rne.Message;
-                return View();
             }
+            return View();
 
         }
 
@@ -48,77 +43,58 @@ namespace GestaoMiniLoja.Web.Controllers
             try
             {
                 _usuarioIdString = await ObterUsuarioIdAsync();
+                if (_usuarioIdString == null) return NotFound();
 
-                if (_usuarioIdString == null)
-                {
-                    TempData["Falha"] = MensagemUsuarioNaoIdentificado;
-                    return RedirectToAction(nameof(Index));
-                }
+                var produto = await _produtosService.ObterOuDefaultAsync(id);
+                if (produto == null) return NotFound();
 
-                var produto = await _cadastroDeProduto.ObterOuDefaultAsync(id);
+                if (produto.VendedorId.ToString() != _usuarioIdString) return BadRequest();
 
-                if (produto == null)
-                { 
-                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
-                    return RedirectToAction(nameof(Index));
-                }
-
-                if (produto.VendedorId.ToString() != _usuarioIdString)
-                {
-                    TempData["Falha"] = CadastroDeProdutoService.MensagemAcessoNaoPermitido;
-                    return RedirectToAction(nameof(Index));
-                }
                 return View(produto);
             }
             catch (RegraDeNegocioException rne)
             {
                 TempData["Falha"] = rne.Message;
-                return View();
             }
+            return View();
         }
 
         [Route("novo")]
         public IActionResult Create()
         {
-            ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao");
+            ViewData["CategoriaId"] = new SelectList(_categoriasService.ObterTodosAsync().Result, "Id", "Descricao");
             return View();
         }
 
         [HttpPost("novo")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Descricao,CaminhoDaImagem,Preco,QuantidadeEmEstoque,CategoriaDeProdutoId")] Produto produto)
+        public async Task<IActionResult> Create([Bind("Id,Nome,Descricao,CaminhoDaImagem,Preco,Estoque,CategoriaId")] Produto produto)
         {
             try
             {
                 _usuarioIdString = await ObterUsuarioIdAsync();
-
-                if (_usuarioIdString == null)
-                {
-                    TempData["Falha"] = MensagemUsuarioNaoIdentificado;
-                    return RedirectToAction(nameof(Index));
-                }
+                if (_usuarioIdString == null) return NotFound();
 
                 ModelState.Remove("Vendedor");
                 ModelState.Remove("VendedorId");
-                ModelState.Remove("CategoriaDeProduto");
+                ModelState.Remove("Categoria");
 
                 if (!ModelState.IsValid)
                 {
-                    ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaDeProdutoId);
+                    ViewData["CategoriaId"] = new SelectList(_categoriasService.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaId);
                     return View(produto);
                 }
 
-                produto.VendedorId = new Guid(_usuarioIdString);
-                await _cadastroDeVendedor.IncluirSeNaoExiste(produto.VendedorId);
-                await _cadastroDeProduto.IncluirAsync(produto);
-                TempData["Sucesso"] = CadastroDeProdutoService.MensagemInclusaoBemSucedida;
-                return RedirectToAction(nameof(Index));
+                await _vendedoresService.IncluirSeNaoExiste(new Guid(_usuarioIdString));
+                await _produtosService.IncluirAsync(produto);
+                TempData["Sucesso"] = "Produto incluído.";
+                return RedirectToAction("Index");
             }
             catch (RegraDeNegocioException rne)
             {
                 TempData["Falha"] = rne.Message;
-                return View(produto);
             }
+            return View(produto);
         }
 
         [Route("editar/{id:int}")]
@@ -126,59 +102,47 @@ namespace GestaoMiniLoja.Web.Controllers
         {
             try
             {
-                var produto = await _cadastroDeProduto.ObterAsync(id);
+                var produto = await _produtosService.ObterAsync(id);
+                if (produto == null) return NotFound();
 
-                if (produto == null)
-                {
-                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
-                    return RedirectToAction(nameof(Index));
-                }
-
-                ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaDeProdutoId);
+                ViewData["CategoriaId"] = new SelectList(_categoriasService.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaId);
                 return View(produto);
             }
             catch (RegraDeNegocioException rne)
             {
                 TempData["Falha"] = rne.Message;
-                return View();
             }
+            return View();
         }
 
         [HttpPost("editar/{id:int}"), ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Descricao,CaminhoDaImagem,Preco,QuantidadeEmEstoque,CategoriaDeProdutoId,VendedorId")] Produto produto)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Descricao,CaminhoDaImagem,Preco,Estoque,CategoriaId,VendedorId")] Produto produto)
         {
             ModelState.Remove("Vendedor");
-            ModelState.Remove("CategoriaDeProduto");
+            ModelState.Remove("Categoria");
 
             if (ModelState.IsValid)
             {
-                if (id != produto.Id)
-                {
-                    TempData["Falha"] = "Solicitação inapropriada.";
-                    return RedirectToAction(nameof(Index));
-                }
+                if (id != produto.Id) return BadRequest();
 
                 try
                 {
-                    await _cadastroDeProduto.AtualizarAsync(produto);
-                    TempData["Sucesso"] = CadastroDeProdutoService.MensagemAtualizacaoBemSucedida;
-                    return RedirectToAction(nameof(Index));
+                    await _produtosService.AtualizarAsync(produto);
+                    TempData["Sucesso"] = "Produto atualizado.";
+                    return RedirectToAction("Index");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _cadastroDeProduto.ExisteAsync(produto.Id))
-                    {
-                        TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
-                    }
-                    TempData["Falha"] = CadastroDeProdutoService.MensagemAtualizacaoMalSucedidaPorConcorrencia;
+                    if (!await _produtosService.ExisteAsync(produto.Id)) return NotFound();
+                    TempData["Falha"] = "Produto atualizado por outro usuário. Verifique.";
                 }
                 catch (RegraDeNegocioException rne)
                 {
                     TempData["Falha"] = rne.Message;
                 }
             }
-            ViewData["CategoriaDeProdutoId"] = new SelectList(_cadastroDeCategoriaProduto.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaDeProdutoId);
+            ViewData["CategoriaId"] = new SelectList(_categoriasService.ObterTodosAsync().Result, "Id", "Descricao", produto.CategoriaId);
             return View(produto);
         }
 
@@ -187,13 +151,8 @@ namespace GestaoMiniLoja.Web.Controllers
         {
             try
             {
-                var produto = await _cadastroDeProduto.ObterOuDefaultAsync(id);
-
-                if (produto == null)
-                {
-                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
-                    return RedirectToAction(nameof(Index));
-                }
+                var produto = await _produtosService.ObterOuDefaultAsync(id);
+                if (produto == null) return NotFound();
 
                 return View(produto);
             }
@@ -201,7 +160,7 @@ namespace GestaoMiniLoja.Web.Controllers
             {
                 TempData["Falha"] = rne.Message;
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         [HttpPost("excluir/{id:int}"), ActionName("Delete")]
@@ -210,21 +169,17 @@ namespace GestaoMiniLoja.Web.Controllers
         {
             try
             {
-                var produto = await _cadastroDeProduto.ObterAsync(id);
+                var produto = await _produtosService.ObterAsync(id);
+                if (produto == null) return NotFound();
 
-                if (produto == null)
-                {
-                    TempData["Falha"] = CadastroDeProdutoService.MensagemEntidadeNaoEncontrada;
-                }
-
-                await _cadastroDeProduto.ExcluirAsync(id);
-                TempData["Sucesso"] = CadastroDeProdutoService.MensagemExclusaoBemSucedida;
+                await _produtosService.ExcluirAsync(id);
+                TempData["Sucesso"] = "Produto excluído.";
             }
             catch (RegraDeNegocioException rne)
             {
                 TempData["Falha"] = rne.Message;
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         private async Task<string?> ObterUsuarioIdAsync()

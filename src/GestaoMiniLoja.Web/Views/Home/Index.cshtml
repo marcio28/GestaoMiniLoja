@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GestaoMiniLoja.Data.Models.Produto>
+﻿@model IEnumerable<GestaoMiniLoja.Core.Models.Produto>
 
 @{
     ViewData["Title"] = "Produtos";
@@ -28,7 +28,7 @@
                     </div>
                     <div class="card-body">
                         <p class="card-text">@item.Descricao</p>
-                        <p class="card-text"><strong>@Html.DisplayNameFor(modelItem => item.CategoriaDeProduto):</strong> @item.CategoriaDeProduto?.Descricao</p>
+                        <p class="card-text"><strong>@Html.DisplayNameFor(modelItem => item.Categoria):</strong> @item.Categoria?.Descricao</p>
                         <p class="card-text"><strong>@Html.DisplayNameFor(modelItem => item.Vendedor):</strong> @item.Vendedor?.Id.ToString().Substring(0, 8)</p>
                     </div>
                     <div class="card-footer text-white">

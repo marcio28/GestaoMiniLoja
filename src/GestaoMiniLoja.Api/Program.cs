@@ -1,4 +1,4 @@
-using GestaoMiniLoja.Data.Configurations;
+using GestaoMiniLoja.Core.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
