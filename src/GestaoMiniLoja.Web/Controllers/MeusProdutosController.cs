@@ -12,11 +12,11 @@ namespace GestaoMiniLoja.Web.Controllers
 {
     [Authorize]
     [Route("meus-produtos")]
-    public class MeusProdutosController(AppDbContext dbContext, UserManager<IdentityUser> userManager) : Controller
+    public class MeusProdutosController(AppDbContext context, UserManager<IdentityUser> userManager) : Controller
     {
-        private readonly CategoriasService _categoriasService = new(dbContext);
-        private readonly ProdutosService _produtosService = new(dbContext);
-        private readonly VendedoresService _vendedoresService = new(dbContext);
+        private readonly CategoriasService _categoriasService = new(context);
+        private readonly ProdutosService _produtosService = new(context);
+        private readonly VendedoresService _vendedoresService = new(context);
         readonly UserManager<IdentityUser> _userManager = userManager;
         string? _usuarioIdString;
 
@@ -85,7 +85,7 @@ namespace GestaoMiniLoja.Web.Controllers
                     return View(produto);
                 }
 
-                await _vendedoresService.IncluirSeNaoExiste(new Guid(_usuarioIdString));
+                await _vendedoresService.IncluirSeNaoExisteAsync(new Guid(_usuarioIdString));
                 await _produtosService.IncluirAsync(produto);
                 TempData["Sucesso"] = "Produto incluído.";
                 return RedirectToAction("Index");

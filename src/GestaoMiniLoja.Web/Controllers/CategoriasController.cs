@@ -10,9 +10,9 @@ namespace GestaoMiniLoja.Web.Controllers
 {
     [Authorize]
     [Route("categorias")]
-    public class CategoriasController(AppDbContext dbContext) : Controller
+    public class CategoriasController(AppDbContext context) : Controller
     {
-        private readonly CategoriasService _categoriasService = new(dbContext);
+        private readonly CategoriasService _categoriasService = new(context);
 
         public async Task<IActionResult> Index()
         {

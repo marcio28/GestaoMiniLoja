@@ -6,16 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GestaoMiniLoja.Web.Controllers
 {
-    public class HomeController(ILogger<HomeController> logger, AppDbContext dbContext) : Controller
+    public class HomeController(ILogger<HomeController> logger, AppDbContext context) : Controller
     {
-        private readonly ProdutosService _produtosService = new(dbContext);
+        private readonly ProdutosService _produtosService = new(context);
         private readonly ILogger<HomeController> _logger = logger;
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                var produtos = await _produtosService.ObterDisponiveisAsync();
+                var produtos = await _produtosService.ObterTodosAsync();
                 return View(produtos);
             }
             catch (Exception e)

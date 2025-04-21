@@ -2,16 +2,16 @@
 
 namespace GestaoMiniLoja.Core.Services
 {
-    public class VendedoresService(AppDbContext dbContext)
+    public class VendedoresService(AppDbContext context)
     {
-        private readonly AppDbContext _dbContext = dbContext;
+        private readonly AppDbContext _context = context;
 
-        public async Task IncluirSeNaoExiste(Guid id)
+        public async Task IncluirSeNaoExisteAsync(Guid id)
         {
-            if (!_dbContext.Vendedores.Any(v => v.Id == id))
+            if (!_context.Vendedores.Any(v => v.Id == id))
             {
-                _dbContext.Vendedores.Add(new Vendedor() { Id = id });
-                await _dbContext.SaveChangesAsync();
+                _context.Vendedores.Add(new Vendedor() { Id = id });
+                await _context.SaveChangesAsync();
             }
         }
     }
