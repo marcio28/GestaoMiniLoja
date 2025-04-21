@@ -8,7 +8,7 @@ namespace GestaoMiniLoja.Core.Configurations
 {
     public static class DatabaseSelectorExtension
     {
-        public static void AddDatabaseSelector(this WebApplicationBuilder builder)
+        public static WebApplicationBuilder AddDatabaseSelector(this WebApplicationBuilder builder)
         {
             if (builder.Environment.IsDevelopment())
             {
@@ -23,6 +23,7 @@ namespace GestaoMiniLoja.Core.Configurations
                                                                                                                     maxRetryDelay: TimeSpan.FromSeconds(5),
                                                                                                                     errorNumbersToAdd: null)));
             }
+            return builder;
         }
     }
 }

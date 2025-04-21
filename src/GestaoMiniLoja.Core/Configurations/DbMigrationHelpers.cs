@@ -42,84 +42,94 @@ namespace GestaoMiniLoja.Core.Configurations
         private static async Task EnsureSeedData(AppDbContext context)
         {
             int categoriaDeProdutoId = -1;
+            var vendedorId = Guid.Parse("13be6992-66bc-46b2-a682-c5abca6a4d02");
 
-            if (context.Categorias.Any(c => c.Id == categoriaDeProdutoId))
-                return;
-
-            await context.Categorias.AddAsync(new Categoria()
-            {
-                Id = categoriaDeProdutoId,
-                Descricao = "Livros"
-            });
+            await AssegurarAmostraDeCategoria(context, categoriaDeProdutoId);
+            await AssegurarAmostraDeVendedor(context, vendedorId);
+            await AssegurarAmostraDeProdutos(context, categoriaDeProdutoId, vendedorId);
+            await AssegurarAmostraDeUser(context, vendedorId);
 
             await context.SaveChangesAsync();
+        }
 
-            var vendedorId = Guid.NewGuid();
-
-            if (context.Vendedores.Any(v => v.Id == vendedorId))
-                return;
-
-            await context.Vendedores.AddAsync(new Vendedor()
+        private static async Task AssegurarAmostraDeCategoria(AppDbContext context, int categoriaId)
+        {
+            if (!context.Categorias.Any(c => c.Id == categoriaId))
             {
-                Id = vendedorId
-            });
+                await context.Categorias.AddAsync(new Categoria()
+                {
+                    Id = categoriaId,
+                    Descricao = "Livros"
+                });
+            }
+        }
 
+        private static async Task AssegurarAmostraDeVendedor(AppDbContext context, Guid vendedorId)
+        {
+            if (!context.Vendedores.Any(v => v.Id == vendedorId))
+            {
+                await context.Vendedores.AddAsync(new Vendedor()
+                {
+                    Id = vendedorId
+                });
+            }
+        }
+
+        private static async Task AssegurarAmostraDeProdutos(AppDbContext context, int categoriaId, Guid vendedorId)
+        {
             int produto1Id = -1;
-
-            if (context.Produtos.Any(p => p.Id == produto1Id))
-                return;
-
-            await context.Produtos.AddAsync(new Produto()
+            if (!context.Produtos.Any(p => p.Id == produto1Id))
             {
-                Id = -1,
-                Nome = "Livro CSS",
-                Descricao = "Aprenda CSS de forma didática, com exemplos.",
-                CaminhoDaImagem = "https://m.media-amazon.com/images/I/41hoJ5QbTjL._SY445_SX342_.jpg",
-                Preco = "R$ 50,00",
-                Estoque = 10,
-                CategoriaId = categoriaDeProdutoId,
-                VendedorId = vendedorId
-            });
+                await context.Produtos.AddAsync(new Produto()
+                {
+                    Id = -1,
+                    Nome = "Livro CSS",
+                    Descricao = "Aprenda CSS de forma didática, com exemplos.",
+                    CaminhoDaImagem = "https://m.media-amazon.com/images/I/41hoJ5QbTjL._SY445_SX342_.jpg",
+                    Preco = "R$ 50,00",
+                    Estoque = 10,
+                    CategoriaId = categoriaId,
+                    VendedorId = vendedorId
+                });
+            }
 
             int produto2Id = -2;
-
-            if (context.Produtos.Any(p => p.Id == produto2Id))
-                return;
-
-            await context.Produtos.AddAsync(new Produto()
+            if (!context.Produtos.Any(p => p.Id == produto2Id))
             {
-                Id = -2,
-                Nome = "Livro jQuery",
-                Descricao = "Aprenda jQuery em 2 dias.",
-                CaminhoDaImagem = "https://m.media-amazon.com/images/I/41T51Y1sMgL._SY445_SX342_.jpg",
-                Preco = "R$ 1,99",
-                Estoque = 10,
-                CategoriaId = categoriaDeProdutoId,
-                VendedorId = vendedorId
-            });
+                await context.Produtos.AddAsync(new Produto()
+                {
+                    Id = -2,
+                    Nome = "Livro jQuery",
+                    Descricao = "Aprenda jQuery em 2 dias.",
+                    CaminhoDaImagem = "https://m.media-amazon.com/images/I/41T51Y1sMgL._SY445_SX342_.jpg",
+                    Preco = "R$ 1,99",
+                    Estoque = 10,
+                    CategoriaId = categoriaId,
+                    VendedorId = vendedorId
+                });
+            }
+        }
 
-            await context.SaveChangesAsync();
-
-            if (context.Users.Any(u => u.Id == vendedorId.ToString()))
-                return;
-
-            await context.Users.AddAsync(new IdentityUser
+        private static async Task AssegurarAmostraDeUser(AppDbContext context, Guid vendedorId)
+        {
+            if (!context.Users.Any(u => u.Id == vendedorId.ToString()))
             {
-                Id = vendedorId.ToString(),
-                UserName = "teste@teste.com",
-                NormalizedUserName = "TESTE@TESTE.COM",
-                Email = "teste@teste.com",
-                NormalizedEmail = "TESTE@TESTE.COM",
-                AccessFailedCount = 0,
-                LockoutEnabled = false,
-                PasswordHash = "AQAAAAIAAYagAAAAEEdWhqiCwW/jZz0hEM7aNjok7IxniahnxKxxO5zsx2TvWs4ht1FUDnYofR8JKsA5UA==", // Teste@123
-                TwoFactorEnabled = false,
-                ConcurrencyStamp = Guid.NewGuid().ToString(),
-                EmailConfirmed = true,
-                SecurityStamp = Guid.NewGuid().ToString()
-            });
-
-            await context.SaveChangesAsync();
+                await context.Users.AddAsync(new IdentityUser
+                {
+                    Id = vendedorId.ToString(),
+                    UserName = "teste@teste.com",
+                    NormalizedUserName = "TESTE@TESTE.COM",
+                    Email = "teste@teste.com",
+                    NormalizedEmail = "TESTE@TESTE.COM",
+                    AccessFailedCount = 0,
+                    LockoutEnabled = false,
+                    PasswordHash = "AQAAAAIAAYagAAAAEEdWhqiCwW/jZz0hEM7aNjok7IxniahnxKxxO5zsx2TvWs4ht1FUDnYofR8JKsA5UA==", // Teste@123
+                    TwoFactorEnabled = false,
+                    ConcurrencyStamp = Guid.NewGuid().ToString(),
+                    EmailConfirmed = true,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                });
+            }
         }
     }
 }
