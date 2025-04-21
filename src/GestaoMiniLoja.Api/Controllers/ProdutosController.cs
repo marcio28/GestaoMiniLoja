@@ -2,17 +2,20 @@
 using GestaoMiniLoja.Core.Exceptions;
 using GestaoMiniLoja.Core.Models;
 using GestaoMiniLoja.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestaoMiniLoja.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/produtos")]
     public class ProdutosController(AppDbContext context) : ControllerBase
     {
         private readonly ProdutosService _produtosService = new(context);
 
+        [AllowAnonymous]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -24,6 +27,7 @@ namespace GestaoMiniLoja.Api.Controllers
             return await _produtosService.ObterTodosAsync();
         }
 
+        [AllowAnonymous]
         [HttpGet("por-categoria/{categoriaId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
