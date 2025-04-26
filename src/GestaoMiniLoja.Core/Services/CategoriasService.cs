@@ -20,7 +20,7 @@ namespace GestaoMiniLoja.Core.Services
         {
             if (!EstaConfigurado()) throw AcessoNaoConfigurado();
 
-            _ = await ObterPorDescricaoAsync(categoria.Descricao) ?? throw EntidadeJaExistente();
+            if (await ExisteDescricaoAsync(categoria.Descricao)) throw EntidadeJaExistente();
 
             _context.Add(categoria);
             await _context.SaveChangesAsync();
@@ -53,6 +53,8 @@ namespace GestaoMiniLoja.Core.Services
         private bool EstaConfigurado() => _context.Categorias != null;
 
         public async Task<bool> ExisteAsync(int id) => await _context.Categorias.AnyAsync(e => e.Id == id);
+
+        public async Task<bool> ExisteDescricaoAsync(string descricao) => await _context.Categorias.AnyAsync(c => c.Descricao == descricao);
 
         private Task<bool> ContemAssociacoesAsync(int id) => _context.Produtos.Where(p => p.CategoriaId == id).AnyAsync();
 
