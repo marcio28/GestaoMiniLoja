@@ -16,7 +16,6 @@ namespace GestaoMiniLoja.Web.Controllers
     {
         private readonly CategoriasService _categoriasService = new(context);
         private readonly ProdutosService _produtosService = new(context);
-        private readonly VendedoresService _vendedoresService = new(context);
         readonly UserManager<IdentityUser> _userManager = userManager;
         string? _usuarioIdString;
 
@@ -85,7 +84,7 @@ namespace GestaoMiniLoja.Web.Controllers
                     return View(produto);
                 }
 
-                await _vendedoresService.IncluirSeNaoExisteAsync(new Guid(_usuarioIdString));
+                produto.VendedorId = new Guid(_usuarioIdString);
                 await _produtosService.IncluirAsync(produto);
                 TempData["Sucesso"] = "Produto incluído.";
                 return RedirectToAction("Index");
