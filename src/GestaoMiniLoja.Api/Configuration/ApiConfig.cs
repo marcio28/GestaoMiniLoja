@@ -4,6 +4,7 @@
     {
         public static WebApplicationBuilder AddApiConfig(this WebApplicationBuilder builder)
         {
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers()
                             .ConfigureApiBehaviorOptions(options =>
                             {

@@ -6,7 +6,7 @@ namespace GestaoMiniLoja.Core.Services
 {
     public class CategoriasService(AppDbContext context)
     {
-        private readonly AppDbContext _context = context;
+        readonly AppDbContext _context = context;
 
         public async Task<List<Categoria>> ObterTodosAsync() => await _context.Categorias.ToListAsync();
 
@@ -26,7 +26,7 @@ namespace GestaoMiniLoja.Core.Services
             await _context.SaveChangesAsync();
         }
 
-        private async Task<Categoria?> ObterPorDescricaoAsync(string descricao) => await _context.Categorias.FirstOrDefaultAsync(c => c.Descricao == descricao);
+        async Task<Categoria?> ObterPorDescricaoAsync(string descricao) => await _context.Categorias.FirstOrDefaultAsync(c => c.Descricao == descricao);
 
         public async Task AtualizarAsync(Categoria categoria)
         {
@@ -50,22 +50,22 @@ namespace GestaoMiniLoja.Core.Services
             await _context.SaveChangesAsync();
         }
 
-        private bool EstaConfigurado() => _context.Categorias != null;
+        public bool EstaConfigurado() => _context.Categorias != null;
 
         public async Task<bool> ExisteAsync(int id) => await _context.Categorias.AnyAsync(e => e.Id == id);
 
         public async Task<bool> ExisteDescricaoAsync(string descricao) => await _context.Categorias.AnyAsync(c => c.Descricao == descricao);
 
-        private Task<bool> ContemAssociacoesAsync(int id) => _context.Produtos.Where(p => p.CategoriaId == id).AnyAsync();
+        Task<bool> ContemAssociacoesAsync(int id) => _context.Produtos.Where(p => p.CategoriaId == id).AnyAsync();
 
-        private static RegraDeNegocioException AcessoNaoConfigurado() => RegraDeNegocio("Acesso às categorias não configurado.");
+        static RegraDeNegocioException AcessoNaoConfigurado() => RegraDeNegocio("Acesso às categorias não configurado.");
 
-        private static RegraDeNegocioException EntidadeNaoEncontrada() => RegraDeNegocio("Categoria não encontrada.");
+        static RegraDeNegocioException EntidadeNaoEncontrada() => RegraDeNegocio("Categoria não encontrada.");
 
-        private static RegraDeNegocioException EntidadeJaExistente() => RegraDeNegocio("Categoria já cadastrada.");
+        static RegraDeNegocioException EntidadeJaExistente() => RegraDeNegocio("Categoria já cadastrada.");
 
-        private static RegraDeNegocioException EntidadeComAssociaces() => RegraDeNegocio("Categoria não pode ser excluída, porque há produtos associações a ela.");
+        static RegraDeNegocioException EntidadeComAssociaces() => RegraDeNegocio("Categoria não pode ser excluída, porque há produtos associações a ela.");
 
-        private static RegraDeNegocioException RegraDeNegocio(string mensagem) => new(mensagem);
+        static RegraDeNegocioException RegraDeNegocio(string mensagem) => new(mensagem);
     }
 }
