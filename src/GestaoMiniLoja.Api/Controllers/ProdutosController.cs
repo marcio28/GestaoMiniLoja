@@ -1,5 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using GestaoMiniLoja.Core;
 using GestaoMiniLoja.Core.Exceptions;
 using GestaoMiniLoja.Core.Models;
@@ -7,17 +6,17 @@ using GestaoMiniLoja.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace GestaoMiniLoja.Api.Controllers
 {
     [Authorize]
     [ApiController]
     [Route("api/produtos")]
-    public class ProdutosController(AppDbContext context, IHttpContextAccessor accessor) : ControllerBase
+    public class ProdutosController(AppDbContext context) : ControllerBase
     {
         readonly CategoriasService _categoriasService = new(context);
         readonly ProdutosService _produtosService = new(context);
-        readonly IHttpContextAccessor _accessor = accessor;
 
         [AllowAnonymous]
         [HttpGet]
@@ -75,6 +74,18 @@ namespace GestaoMiniLoja.Api.Controllers
             });
 
             if (!await _categoriasService.ExisteAsync(produto.CategoriaId)) return NotFound($"Categoria não encontrada.");
+
+            Produto produtoAIncluir = new()
+            {
+                Id = 0,
+                Nome = produto.Nome,
+                Descricao = produto.Descricao,
+                Estoque = produto.Estoque,
+                Preco = produto.Preco,
+                CategoriaId = produto.CategoriaId,
+                VendedorId = GetUserId(),
+                CaminhoDaImagem = produto.CaminhoDaImagem
+            };
 
             try
             {
@@ -148,19 +159,8 @@ namespace GestaoMiniLoja.Api.Controllers
 
         Guid GetUserId()
         {
-            // TODO: Pesquisar por que está sempre retornando null
-            var claim = _accessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (claim == null)
-            {
-                claim = _accessor.HttpContext?.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-            }
-
-            var userId = claim is null ? Guid.Empty : Guid.Parse(claim);
-
-            userId = Guid.Parse("13be6992-66bc-46b2-a682-c5abca6a4d02"); // TODO: Remover quando funcionar o código acima, que está sempre retornando Guid.Empty
-            
-            return userId;
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst(JwtRegisteredClaimNames.Sub);
+            return claim is null ? Guid.Empty : Guid.Parse(claim.Value);
         }
 
         bool ProdutoEhDoVendedor(Produto produto)

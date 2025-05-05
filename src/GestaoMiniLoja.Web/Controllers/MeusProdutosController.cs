@@ -3,30 +3,28 @@ using GestaoMiniLoja.Core.Exceptions;
 using GestaoMiniLoja.Core.Models;
 using GestaoMiniLoja.Core.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace GestaoMiniLoja.Web.Controllers
 {
     [Authorize]
     [Route("meus-produtos")]
-    public class MeusProdutosController(AppDbContext context, UserManager<IdentityUser> userManager) : Controller
+    public class MeusProdutosController(AppDbContext context) : Controller
     {
         private readonly CategoriasService _categoriasService = new(context);
         private readonly ProdutosService _produtosService = new(context);
-        readonly UserManager<IdentityUser> _userManager = userManager;
-        string? _usuarioIdString;
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                _usuarioIdString = await ObterUsuarioIdAsync();
-                if (_usuarioIdString == null) return NotFound();
+                var userId = GetUserId();
+                if (userId == Guid.Empty) return NotFound();
 
-                return View(await _produtosService.ObterPorVendedorAsync(_usuarioIdString));
+                return View(await _produtosService.ObterPorVendedorAsync(userId));
             }
             catch (RegraDeNegocioException rne)
             {
@@ -41,13 +39,13 @@ namespace GestaoMiniLoja.Web.Controllers
         {
             try
             {
-                _usuarioIdString = await ObterUsuarioIdAsync();
-                if (_usuarioIdString == null) return NotFound();
+                var userId = GetUserId();
+                if (userId == Guid.Empty) return NotFound();
 
                 var produto = await _produtosService.ObterOuDefaultAsync(id);
                 if (produto == null) return NotFound();
 
-                if (produto.VendedorId.ToString() != _usuarioIdString) return BadRequest();
+                if (produto.VendedorId != userId) return BadRequest();
 
                 return View(produto);
             }
@@ -71,8 +69,8 @@ namespace GestaoMiniLoja.Web.Controllers
         {
             try
             {
-                _usuarioIdString = await ObterUsuarioIdAsync();
-                if (_usuarioIdString == null) return NotFound();
+                var userId = GetUserId();
+                if (userId == Guid.Empty) return NotFound();
 
                 ModelState.Remove("Vendedor");
                 ModelState.Remove("VendedorId");
@@ -84,7 +82,7 @@ namespace GestaoMiniLoja.Web.Controllers
                     return View(produto);
                 }
 
-                produto.VendedorId = new Guid(_usuarioIdString);
+                produto.VendedorId = userId;
                 await _produtosService.IncluirAsync(produto);
                 TempData["Sucesso"] = "Produto incluído.";
                 return RedirectToAction("Index");
@@ -181,10 +179,10 @@ namespace GestaoMiniLoja.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        private async Task<string?> ObterUsuarioIdAsync()
+        Guid GetUserId()
         {
-            IdentityUser? user = await _userManager.GetUserAsync(HttpContext.User);
-            return user?.Id.ToString();
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+            return claim is null ? Guid.Empty : Guid.Parse(claim.Value);
         }
     }
 }

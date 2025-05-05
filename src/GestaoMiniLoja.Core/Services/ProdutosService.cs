@@ -17,9 +17,9 @@ namespace GestaoMiniLoja.Core.Services
                                                                                                            .Where(p => p.CategoriaId == categoriaId)
                                                                                                            .ToListAsync();
 
-        public async Task<List<Produto>> ObterPorVendedorAsync(string vendedorIdString) => await _context.Produtos.Include(p => p.Categoria)
+        public async Task<List<Produto>> ObterPorVendedorAsync(Guid vendedorId) => await _context.Produtos.Include(p => p.Categoria)
                                                                                                                   .Include(p => p.Vendedor)
-                                                                                                                  .Where(p => p.VendedorId == Guid.Parse(vendedorIdString))
+                                                                                                                  .Where(p => p.VendedorId == vendedorId)
                                                                                                                   .ToListAsync();
 
         public async ValueTask<Produto?> ObterAsync(int id) => await _context.Produtos.FindAsync(id);
