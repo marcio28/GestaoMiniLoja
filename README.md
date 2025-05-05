@@ -42,7 +42,7 @@ A estrutura do projeto é organizada da seguinte forma:
 - src/
   - GestaoMiniLoja.Web/ - Projeto MVC
   - GestaoMiniLoja.Api/ - API RESTful
-  - GestaoMiniLoja.Data/ - Modelos de dados e configuração do EF Core
+  - GestaoMiniLoja.Core/ - Modelos de dados, configuração do EF Core e demais código comum às duas camadas de apresentação.
 - README.md - Arquivo de documentação do projeto
 - FEEDBACK.md - Arquivo para consolidação dos feedbacks
 - .gitignore - Arquivo de ignoração do Git
