@@ -64,7 +64,7 @@ namespace GestaoMiniLoja.Core.Services
 
         static RegraDeNegocioException EntidadeJaExistente() => RegraDeNegocio("Categoria já cadastrada.");
 
-        static RegraDeNegocioException EntidadeComAssociaces() => RegraDeNegocio("Categoria não pode ser excluída, porque há produtos associações a ela.");
+        static RegraDeNegocioException EntidadeComAssociaces() => RegraDeNegocio("Categoria não pode ser excluída, porque há produtos associados a ela.");
 
         static RegraDeNegocioException RegraDeNegocio(string mensagem) => new(mensagem);
     }

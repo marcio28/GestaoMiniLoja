@@ -25,7 +25,7 @@ namespace GestaoMiniLoja.Api.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<IEnumerable<Produto>>> GetProdutos()
         {
-            if (!_produtosService.EstaConfigurado()) return Problem("Erro ao obter produtos. Contate o suporte!");
+            if (!_produtosService.EstaConfigurado()) return Problem("Cadastro de produtos inacessível. Contate o suporte!");
 
             return await _produtosService.ObterTodosAsync();
         }
@@ -37,7 +37,7 @@ namespace GestaoMiniLoja.Api.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<IEnumerable<Produto>>> GetProdutosByCategoria(int categoriaId)
         {
-            if (!_produtosService.EstaConfigurado()) return Problem("Erro ao obter produtos por categoria. Contate o suporte!");
+            if (!_produtosService.EstaConfigurado()) return Problem("Cadastro de produtos inacessível. Contate o suporte!");
 
             return await _produtosService.ObterPorCategoriaAsync(categoriaId); ;
         }
@@ -48,7 +48,7 @@ namespace GestaoMiniLoja.Api.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<Produto>> GetProduto(int id)
         {
-            if (!_produtosService.EstaConfigurado()) return Problem("Erro ao obter um produto. Contate o suporte!");
+            if (!_produtosService.EstaConfigurado()) return Problem("Cadastro de produtos inacessível. Contate o suporte!");
 
             var produto = await _produtosService.ObterAsync(id);
             if (produto == null) return NotFound();
@@ -146,7 +146,7 @@ namespace GestaoMiniLoja.Api.Controllers
         [ProducesDefaultResponseType]
         public async Task<IActionResult> DeleteProduto(int id)
         {
-            if (!_produtosService.EstaConfigurado()) return Problem("Erro ao excluir um produto. Contate o suporte!");
+            if (!_produtosService.EstaConfigurado()) return Problem("Cadastro de produtos inacessível. Contate o suporte!");
 
             var produtoExistente = await _produtosService.ObterAsync(id);
             if (produtoExistente == null) return NotFound();
