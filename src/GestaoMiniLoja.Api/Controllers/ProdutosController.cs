@@ -6,7 +6,6 @@ using GestaoMiniLoja.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace GestaoMiniLoja.Api.Controllers
 {
@@ -89,8 +88,8 @@ namespace GestaoMiniLoja.Api.Controllers
 
             try
             {
-                await _produtosService.IncluirAsync(produto);
-                return CreatedAtAction(nameof(GetProduto), new { id = produto.Id }, produto);
+                await _produtosService.IncluirAsync(produtoAIncluir);
+                return CreatedAtAction(nameof(GetProduto), new { id = produtoAIncluir.Id }, produtoAIncluir);
 
             }
             catch (RegraDeNegocioException e)
@@ -159,16 +158,10 @@ namespace GestaoMiniLoja.Api.Controllers
 
         Guid GetUserId()
         {
-            var claim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst(JwtRegisteredClaimNames.Sub);
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst(ClaimTypes.Sid);
             return claim is null ? Guid.Empty : Guid.Parse(claim.Value);
         }
 
-        bool ProdutoEhDoVendedor(Produto produto)
-        {
-            bool ehDoVendedor;
-            ehDoVendedor = produto.VendedorId == GetUserId();
-            ehDoVendedor = true; // TODO: Remover quando funcionar o método GetUserId, que está sempre retornando Guid.Empty
-            return ehDoVendedor;
-        }
+        bool ProdutoEhDoVendedor(Produto produto) => produto.VendedorId == GetUserId();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using GestaoMiniLoja.Api.Models;
 using Microsoft.AspNetCore.Identity;
@@ -45,7 +46,7 @@ namespace GestaoMiniLoja.Api.Controllers
             if (!result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
-                return Ok(GerarJwt());
+                return Ok(GerarJwt(user.Email));
             }
 
             return Ok();
@@ -63,16 +64,30 @@ namespace GestaoMiniLoja.Api.Controllers
 
             if (!result.Succeeded) return Problem("Usuário ou senha inválidos.");
 
-            return Ok(GerarJwt());
+            return Ok(GerarJwt(loginUser.Email));
         }
 
-        private string GerarJwt()
+        private async Task<string> GerarJwt(string email)
         {
+            var user = await _userManager.FindByEmailAsync(email);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Sid, user.Id)
+            };
+
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Segredo);
 
             var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
             {
+                Subject = new ClaimsIdentity(claims),
                 Issuer = _jwtSettings.Emissor,
                 Audience = _jwtSettings.Audiencia,
                 Expires = DateTime.UtcNow.AddHours(_jwtSettings.ExpiracaoEmHoras),
