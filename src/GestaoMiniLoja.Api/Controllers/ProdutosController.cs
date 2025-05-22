@@ -58,7 +58,7 @@ namespace GestaoMiniLoja.Api.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Produto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
         public async Task<ActionResult<Produto>> PostProduto(Produto produto)
@@ -89,7 +89,7 @@ namespace GestaoMiniLoja.Api.Controllers
             try
             {
                 await _produtosService.IncluirAsync(produtoAIncluir);
-                return CreatedAtAction(nameof(GetProduto), new { id = produtoAIncluir.Id }, produtoAIncluir);
+                return CreatedAtAction(nameof(PostProduto), new { id = produtoAIncluir.Id }, produtoAIncluir);
 
             }
             catch (RegraDeNegocioException e)
