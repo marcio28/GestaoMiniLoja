@@ -89,7 +89,7 @@ namespace GestaoMiniLoja.Api.Controllers
             try
             {
                 await _produtosService.IncluirAsync(produtoAIncluir);
-                return CreatedAtAction(nameof(PostProduto), new { id = produtoAIncluir.Id }, produtoAIncluir);
+                return CreatedAtAction(nameof(GetProduto), new { id = produtoAIncluir.Id }, produtoAIncluir);
 
             }
             catch (RegraDeNegocioException e)

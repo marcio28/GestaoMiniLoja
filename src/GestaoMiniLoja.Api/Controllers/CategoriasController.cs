@@ -57,7 +57,7 @@ namespace GestaoMiniLoja.Api.Controllers
             try
             {
                 await _categoriasService.IncluirAsync(categoria);
-                return CreatedAtAction(nameof(PostCategoria), new { id = categoria.Id }, categoria);
+                return CreatedAtAction(nameof(GetCategoria), new { id = categoria.Id }, categoria);
 
             }
             catch (RegraDeNegocioException e)
