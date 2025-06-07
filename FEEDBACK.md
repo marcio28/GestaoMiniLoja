@@ -1,77 +1,93 @@
 # Feedback - Avaliação Geral
 
 ## Front End
+
 ### Navegação
   * Pontos positivos:
-    - O projeto possui views e rotas definidas para as funcionalidades no projeto MVC.
-    - Implementação de controllers e views para operações principais.
+    - O projeto MVC está bem estruturado, com navegação funcional, views completas e controllers para categorias e produtos.
 
   * Pontos negativos:
-    - Nomenclatura verbosa e fora do padrão nas actions das controllers.
-    - Nomes de métodos e classes excessivamente descritivos, prejudicando a legibilidade.
+    - Nenhum.
 
 ### Design
-    - Será avaliado na entrega final
+  - Interface clara, funcional e bem adaptada para o uso administrativo de uma mini loja.
 
 ### Funcionalidade
   * Pontos positivos:
-    - Implementações básicas de CRUD no MVC funcionando.
-    - Migrations e seed de dados automáticos implementados.
+    - CRUD completo para produtos e categorias implementado tanto no MVC quanto na API.
+    - Identity implementado corretamente com autenticação via cookies (MVC) e JWT (API).
+    - A criação do vendedor é feita junto do usuário no MVC, com compartilhamento correto do ID.
+    - Uso de SQLite com migrations automáticas e seed de dados bem configurado.
+    - Arquitetura enxuta e coesa em três projetos: API, MVC e Core.
+    - Modelagem das entidades atende aos requisitos do domínio.
 
   * Pontos negativos:
-    - Nomenclatura não segue padrões convencionais do ASP.NET Core.
+    - A criação do vendedor ocorre apenas no MVC, a API não realiza esse processo.
+    - Falta verificação de segurança no endpoint de edição de produto para garantir que o vendedor logado seja o proprietário do item a ser alterado.
 
 ## Back End
+
 ### Arquitetura
   * Pontos positivos:
-    - Separação em camadas básica presente.
-    - Implementação do SQLite conforme especificado.
+    - Três camadas bem definidas: Core, API e MVC.
+    - Uso de boas práticas em configuração e separação de responsabilidades.
 
   * Pontos negativos:
-    - Ausência da camada de API RESTful.
-    - A camada "Data" possui responsabilidades além de acesso a dados, deveria ser renomeada para "Core".
-    - Nomenclatura verbosa e inconsistente com padrões de mercado.
+    - Nenhum relevante além dos aspectos de segurança mencionados.
 
 ### Funcionalidade
   * Pontos positivos:
-    - Uso do Entity Framework Core com SQLite.
-    - Implementação de migrations automáticas.
-    - Seed de dados automático funcionando.
+    - Implementações completas das operações CRUD e autenticação nas duas camadas.
 
   * Pontos negativos:
-    - Ausência da API RESTful.
-    - Nomenclatura dos métodos e classes muito verbosa.
-    - Falta a implementação da criação automática do vendedor durante o registro do Identity.
+    - Validação de propriedade de recursos (vendedor-produto) ausente.
 
 ### Modelagem
   * Pontos positivos:
-    - Modelagem de entidades presente e funcional.
-    - Uso adequado do Entity Framework Core.
+    - Modelagem clara, com associações corretas entre Produto, Categoria e Vendedor.
+    - ViewModels e entidades bem definidas.
 
   * Pontos negativos:
-    - Camada "Data" com responsabilidades além do acesso a dados.
-    - Nomenclatura das classes e métodos necessita revisão para seguir padrões mais concisos.
+    - Nenhum.
 
 ## Projeto
+
 ### Organização
   * Pontos positivos:
-    - Uso da pasta `src` na raiz.
-    - Arquivo de solução (`.sln`) presente.
-    - Estrutura básica de projetos estabelecida.
+    - Organização geral do projeto clara e compatível com os padrões esperados.
+    - Uso correto da pasta `src`, projeto `.sln` na raiz, e arquivos de documentação presentes.
 
   * Pontos negativos:
-    - Falta do projeto de API.
+    - Nenhum.
 
 ### Documentação
   * Pontos positivos:
-    - Repositório com `README.md` presente.
-    - Arquivo `FEEDBACK.md` presente.
+    - `README.md` e `FEEDBACK.md` presentes e com informações relevantes.
+    - Swagger configurado na API.
 
   * Pontos negativos:
-    - Não há documentação da API (pois ela não existe).
+    - Nenhum.
 
 ### Instalação
   * Pontos positivos:
-    - Implementação correta do SQLite.
-    - Migrations automáticas funcionando.
-    - Seed de dados implementado.
+    - SQLite com seed e migrations automáticas funcionam corretamente.
+    - Projeto executável localmente sem necessidade de ajustes manuais.
+
+  * Pontos negativos:
+    - Nenhum.
+
+---
+
+# 📊 Matriz de Avaliação de Projetos
+
+| **Critério**                   | **Peso** | **Nota** | **Resultado Ponderado**                  |
+|-------------------------------|----------|----------|------------------------------------------|
+| **Funcionalidade**            | 30%      | 9        | 2,7                                      |
+| **Qualidade do Código**       | 20%      | 8        | 1,6                                      |
+| **Eficiência e Desempenho**   | 20%      | 8        | 1,6                                      |
+| **Inovação e Diferenciais**   | 10%      | 9        | 0,9                                      |
+| **Documentação e Organização**| 10%      | 9        | 0,9                                      |
+| **Resolução de Feedbacks**    | 10%      | 8        | 0,8                                      |
+| **Total**                     | 100%     | -        | **8,5**                                  |
+
+## 🎯 **Nota Final: 8,5 / 10**
